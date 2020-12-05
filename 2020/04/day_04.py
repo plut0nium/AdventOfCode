@@ -17,7 +17,8 @@ pid_pattern = re.compile(r'^\d{9}$')
 
 def validate_year(y, ymin, ymax):
     try:
-        if int(y) >= ymin and int(y) <= ymax:
+        # if int(y) >= ymin and int(y) <= ymax:
+        if ymin <= int(y) <= ymax:
             return True
     except ValueError:
         pass
@@ -43,10 +44,12 @@ def validate_hgt(c):
     if h is None:
         return False
     if h.group(2) == 'in':
-        if int(h.group(1)) in range(59,76+1):
+        # if int(h.group(1)) in range(59,76+1):
+        if 59 <= int(h.group(1)) <= 76:
             return True
     else:
-        if int(h.group(1)) in range(150,193+1):
+        # if int(h.group(1)) in range(150,193+1):
+        if 150 <= int(h.group(1)) <= 193:
             return True
     return False
 
