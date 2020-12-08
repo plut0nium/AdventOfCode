@@ -16,10 +16,7 @@ def run(code):
     # progam_sequence = []
     progam_sequence = set()
     exit_status = 0
-    end = False
     while True:
-        if iptr == len(code)-1:
-            end = True
         if code[iptr][0] == 'nop':
             iptr += 1
         elif code[iptr][0] == 'acc':
@@ -30,13 +27,14 @@ def run(code):
         else:
             # error
             pass
+        # program termination
+        if iptr == len(code): # terminate as expected
+            break
         if iptr not in progam_sequence:
             # progam_sequence.append(iptr)
             progam_sequence.add(iptr)
         else: # loop detected
             exit_status = 1
-            end = True
-        if end:
             break
     return accumulator, exit_status
 
