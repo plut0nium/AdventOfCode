@@ -34,31 +34,28 @@ def count_occupied_seats(x, y, grid, radius=None):
     return count
 
 def populate_seats(grid, radius=1, tolerance=4):
-    count = 0
     grid_x = len(grid[0])
     grid_y = len(grid)
-    working_grid = deepcopy(grid)
+    grid_populated = deepcopy(grid)
     while True:
-        new_grid = deepcopy(working_grid)
+        grid_update = deepcopy(grid_populated)
         seats_changed = 0
         for x,y in product(range(grid_x),range(grid_y)):
             if grid[y][x] == '.':
                 continue
-            os =  count_occupied_seats(x, y, working_grid, radius)
-            if working_grid[y][x] == 'L' and os == 0:
-                new_grid[y][x] = '#'
+            os =  count_occupied_seats(x, y, grid_populated, radius)
+            if grid_populated[y][x] == 'L' and os == 0:
+                grid_update[y][x] = '#'
                 seats_changed += 1
-            elif working_grid[y][x] == '#' and os >= tolerance:
-                new_grid[y][x] = 'L'
+            elif grid_populated[y][x] == '#' and os >= tolerance:
+                grid_update[y][x] = 'L'
                 seats_changed += 1
-        # print_grid(new_grid)
+        # print_grid(grid_update)
         # print(seats_changed)
-        working_grid = new_grid
+        grid_populated = grid_update
         if seats_changed == 0:
-            for r in working_grid:
-                count += r.count('#')
-            break
-    return count
+            return grid_populated
+    return False
 
 def print_grid(g):
     for r in g:
@@ -71,8 +68,8 @@ if __name__ == '__main__':
     with open(input_file,'r') as f:
         grid = [[c for c in l.strip()] for l in f.readlines() if l.strip()]
 
-    count1 = populate_seats(grid)
-    count2 = populate_seats(grid, None, 5)
+    count1 = sum(r.count('#') for r in populate_seats(grid))
+    count2 = sum(r.count('#') for r in populate_seats(grid, None, 5))
 
     print("Step 1:", count1)
     print("Step 2:", count2)
