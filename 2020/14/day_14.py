@@ -6,7 +6,7 @@ from collections import defaultdict
 from itertools import product
 
 input_file = "input"
-#input_file = "test1.txt"
+#input_file = "test1.txt" # <<< DO NOT RUN ON PART 2 !!!
 #input_file = "test2.txt"
 
 #re_prog = re.compile(r'(?:^(mask) = ([X01]{36}))|(?:^(mem)\[(\d+)\] = (\d+))')
