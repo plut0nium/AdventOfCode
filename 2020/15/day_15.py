@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from collections import defaultdict
+from collections import defaultdict, deque
 
 input_file = "input"
 test_input = None
@@ -15,15 +15,16 @@ test_input = None
 
 def elves_game(starting, turns):
     spoken = defaultdict(list)
+    # spoken = defaultdict(lambda : deque(maxlen=2)) # actually slower than lists...
     for i,s in enumerate(starting):
-        spoken[s] = [i]
+        spoken[s].append(i)
         ls = s
     for i in range(len(starting), turns):
         if len(spoken[ls]) <= 1:
             ls = 0
         else:
             ls = spoken[ls][-1] - spoken[ls][-2]
-        spoken[ls].append(i) # could trim the list
+        spoken[ls].append(i)
     return ls
 
 
@@ -34,7 +35,10 @@ if __name__ == '__main__':
     else:
         starting = test_input
     
+    # from datetime import datetime
+    # startTime = datetime.now() # let's do some simple profiling...
+    
     print("Step 1:", elves_game(starting, 2020))
     print("Step 2:", elves_game(starting, 30000000))
 
-
+    # print(datetime.now() - startTime)
