@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from itertools import product
+from collections import Counter
 from copy import deepcopy
 from datetime import datetime
 from operator import add
@@ -71,30 +72,13 @@ def conway_cubes(space, dimensions=3, loop=6):
     directions = [d for d in product([-1,0,1], repeat=dimensions) if d != (0,)*dimensions]
     for i in range(loop):
         space_new = Space(dimensions)
-        # space_new = deepcopy(space)
-        # for c in product(*(range(e[0]-1,e[1]+2) for e in space.extent)):
-        to_check = set()
+        neighbour_count = Counter()
         for x in space.get_active_coords():
-            to_check.add(x)
             for d in directions:
-                # to_check.add(tuple(x[i]+d[i] for i in range(dimensions)))
-                to_check.add(tuple(map(add, x, d)))
-        for c in to_check:
-            n_active = 0
-            for d in directions:
-                # nc = tuple(c[i]+d[i] for i in range(dimensions))
-                nc = tuple(map(add, c, d))
-                if space.is_set(nc) and space.get(nc) == '#':
-                    n_active += 1
-            if space.is_set(c) and space.get(c) == '#':
-                # if n_active not in (2,3):
-                #     # space_new.set(c,'.')
-                #     space_new.remove(c)
-                if n_active in (2,3): # if new_space is empty (not a copy)
-                    space_new.set(c, '#')
-            else:
-                if n_active == 3:
-                    space_new.set(c, '#')
+                neighbour_count[tuple(map(add, x, d))] += 1
+        for c in neighbour_count.items():
+            if c[1] == 3 or (space.is_set(c[0]) and c[1] == 2):
+                space_new.set(c[0], '#')
         space = space_new
     return space.count('#')
 
