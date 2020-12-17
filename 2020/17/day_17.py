@@ -3,6 +3,7 @@
 
 from itertools import product
 from copy import deepcopy
+from datetime import datetime
 
 class Space:
     def __init__(self, n=3, default=0):
@@ -12,29 +13,22 @@ class Space:
         self.extent = [(0,0)] * self.n
     
     def set(self, coords, value, allow_extend=False):
-        l = len(coords)
-        if l == self.n:
-            c = coords
-        elif l < self.n:
-            if allow_extend:
-                c = tuple(list(coords) + [0]*(self.n - l))
-            else:
-                raise ValueError('Not enough dimensions: {}, expected {}'.format(l, self.n))
-        else:
-            raise ValueError('Too many dimensions: {}, expected {}'.format(l, self.n))
+        c = self._check_coords(coords, allow_extend)
         self.space[c] = value
         for i in range(self.n):
             self.extent[i] = (min(c[i], self.extent[i][0]),
                               max(c[i], self.extent[i][1]))
     
     def get(self, coords):
-        # TODO: check coords
+        coords = self._check_coords(coords)
         return self.space.get(coords, self.default)
     
     def is_set(self, coords):
+        coords = self._check_coords(coords)
         return coords in self.space
     
     def is_in(self, coords):
+        coords = self._check_coords(coords)
         return all(coords[i] in range(self.extent[i][0],self.extent[i][1]+1) for i in range(self.n))
     
     def count(self, value):
@@ -47,6 +41,19 @@ class Space:
         self.extent = [(0,0)] * self.n
         for x in space_old.items():
             self.set(x[0], x[1], True)
+    
+    def _check_coords(self, coords, allow_extend=False):
+        l = len(coords)
+        if l == self.n:
+            pass
+        elif l < self.n:
+            if allow_extend:
+                coords = tuple(list(coords) + [0]*(self.n - l))
+            else:
+                raise ValueError('Not enough dimensions: {}, expected {}'.format(l, self.n))
+        else:
+            raise ValueError('Too many dimensions: {}, expected {}'.format(l, self.n))
+        return coords
 
 def conway_cubes(space, dimensions=3, loop=6):
     space = deepcopy(space)
@@ -86,5 +93,10 @@ if __name__ == '__main__':
             y+= 1
             x = 0
 
-    print("Step 1:", conway_cubes(space, 3))
-    print("Step 2:", conway_cubes(space, 4))
+    # print("Step 1:", conway_cubes(space, 3))
+    # print("Step 2:", conway_cubes(space, 4))
+
+    # let's do some measurements...
+    for n in range(2,5):
+        start_time = datetime.now()
+        print("n = {}:".format(n), conway_cubes(space, n), " -> ", datetime.now() - start_time)
