@@ -42,6 +42,7 @@ class Tile:
         self.flipped_x = False
         self.flipped_y = False
 
+
 class Grid:
     def __init__(self, default=0):
         self.grid = {}
@@ -76,9 +77,26 @@ class Grid:
     def get_active_coords(self):
         return list(self.grid.keys())
     
+    def get_size(self):
+        return ((self.x_bound[1] - self.x_bound[0] + 1),
+                (self.y_bound[1] - self.y_bound[0] + 1))
+    
+    def set_origin(self, x, y):
+        grid_old = self.grid
+        self.clear()
+        for c, v in grid_old.items():
+            x_new = c[0] - x
+            y_new = c[1] - y
+            self.set(x_new, y_new, v)
+    
+    def clear(self):
+        self.grid = {}
+        self.x_bound = [0, 0]
+        self.y_bound = [0, 0]
+
 
 input_file = "input"
-# input_file = "test1.txt"
+input_file = "test1.txt"
 
 if __name__ == '__main__':
     count1, count2 = 0, 0
@@ -129,6 +147,15 @@ if __name__ == '__main__':
         to_place.append(t) # not placed -> replace at the end of the queue
     
     count1 = reduce(lambda a,b: a*b, (grid.get(x,y) for x,y in product(grid.x_bound, grid.y_bound)))
+
+    grid.set_origin(grid.x_bound[0], grid.y_bound[0])
+    image_size = tuple(map(lambda a: a*8, grid.get_size()))
+    image = np.zeros(image_size)
+    for x,y in product(range(grid.x_bound[1]+1),
+                       range(grid.y_bound[1]+1)):
+        # TODO: correct cartesian coords x,y vs row,col in numpy...
+        image[x*8:(x+1)*8,y*8:(y+1)*8] = tiles[grid.get(x,y)].get_array()[1:-1,1:-1]
+        # DOES NOT WORK FOR NOW
 
     print("Step 1:", count1)
     print("Step 2:", count2)
