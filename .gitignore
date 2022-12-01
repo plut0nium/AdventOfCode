@@ -1,2 +1,3 @@
-# ignire AoC input files
-*/input
+# ignore AoC input files
+**/input
+**/input.txt
