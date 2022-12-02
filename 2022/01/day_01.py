@@ -4,15 +4,9 @@
 input_file = "input"
 #input_file = "test01.txt"
 
-elves = []
-
 if __name__ == '__main__':
-    elves.append(0)
-    for l in open(input_file).readlines():
-        l = l.strip()
-        if len(l):
-            elves[-1] += int(l)
-        else:
-            elves.append(0)
+    with open(input_file) as f:
+        elves = [sum((int(c) for c  in e.split("\n")))
+                   for e in f.read().strip().split("\n\n")]
     print("Part #1 :", max(elves))
     print("Part #2 :", sum(sorted(elves)[-3:]))
