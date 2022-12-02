@@ -4,39 +4,25 @@
 input_file = "input"
 #input_file = "test01.txt"
 
-shifumi = {"A":"1", "B":"2", "C":"3",
-           "X":"1", "Y":"2", "Z":"3" }
+shifumi = {"A":"0", "B":"1", "C":"2",
+           "X":"0", "Y":"1", "Z":"2" }
 # Rock - Paper - Scissors
-# R = 1, P = 2, S = 3
+# R = 0, P = 1, S = 2
 # -> X wins if X == Y+1 (mod 3) 
 
 def part1(rounds):
     score = 0
     for r in rounds:
-        if r[1] == r[0]:
-            # draw
-            score += r[1] + 3
-        elif r[1]%3 == (r[0] + 1)%3:
-            # win
-            score += r[1] + 6
-        else:
-            # loose
-            score += r[1]
+        result = (r[1] - r[0] + 1) % 3 # 0 = lose, 1 = draw, 2 = win
+        score += (r[1] + 1) + result * 3
     return score
 
 def part2(rounds):
     score = 0
     for r in rounds:
-        if r[1] == 1:
-            # loose
-            score += 3 if r[0] == 1 else (r[0] - 1)
-        elif r[1] == 2:
-            # draw
-            score += r[0] + 3
-        else:
-            # win
-            score += 1 if r[0] == 3 else (r[0] + 1)
-            score += 6
+        # r[1] is the result here
+        my_choice = (r[0] + (r[1] - 1)) % 3
+        score += (my_choice + 1) + r[1] * 3
     return score
 
 if __name__ == '__main__':
