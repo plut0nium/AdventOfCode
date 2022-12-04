@@ -8,8 +8,8 @@ if __name__ == '__main__':
     overlap = 0
     included = 0
     for l in open(input_file).readlines():
-        p = l.strip().split(',')
-        c1,c2 = [[int(x) for x in p[i].split('-')] for i in range(2)] 
+        c1,c2 = [[int(x) for x in p.split('-')]
+                     for p in l.strip().split(',')] 
         if ((c1[0] <= c2[0]) and (c1[1] >= c2[1])) \
             or ((c2[0] <= c1[0]) and (c2[1] >= c1[1])):
                 included += 1
