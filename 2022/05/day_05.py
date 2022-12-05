@@ -30,7 +30,7 @@ if __name__ == '__main__':
             stacks[m[2]-1].append(stacks[m[1]-1].pop())
         # part 2
         stacks2[m[2]-1] += stacks2[m[1]-1][-m[0]:]
-        stacks2[m[1]-1] = stacks2[m[1]-1][:len(stacks2[m[1]-1])-m[0]]
+        stacks2[m[1]-1] = stacks2[m[1]-1][:-m[0]]
 
     print("Part #1 :", "".join((s[-1] for s in stacks)))
     print("Part #2 :", "".join((s[-1] for s in stacks2)))
