@@ -11,9 +11,9 @@ def dir_size(d, fs):
     s = 0
     for f in fs[d]:
         if isinstance(f, str):
-            # next dir
-            nd = d + "/" + f if len(d) > 1 else d + f
-            s += dir_size(nd, fs)
+            # child dir
+            c = d + "/" + f if len(d) > 1 else d + f
+            s += dir_size(c, fs)
         else:
             s += f
     return s
@@ -38,20 +38,21 @@ if __name__ == '__main__':
                 fs[p] = []
             t, n = c.split()
             if t == 'dir':
+                # add subdir
                 fs[p].append(n)
             else:
+                # just store file size
                 fs[p].append(int(t))
-            pass
 
-    t = 0
-    unused_space = FS_SIZE - dir_size("/", fs)
-    candidate = FS_SIZE
+    s = []
     for k in fs.keys():
-        s = dir_size(k, fs)
-        if s <= 100000:
-            t += s
-        if s >= (SPACE_REQUIRED - unused_space) and s < candidate:
-            candidate = s
+        s.append(dir_size(k, fs))
+    unused_space = FS_SIZE - max(s)
+    candidate = FS_SIZE
+    for t in sorted(s):
+        if t >= (SPACE_REQUIRED - unused_space) and t < candidate:
+            candidate = t
+            break # because we sorted s
 
-    print("Part #1 :", t)
+    print("Part #1 :", sum((t for t in s if t <= 100000)))
     print("Part #2 :", candidate)
