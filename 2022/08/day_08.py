@@ -16,12 +16,12 @@ def visibility(trees):
                 v[x, y] = 1
                 continue
             h = trees[x,y]
-            if h > max(trees[0:x,y]) or h > max(trees[x+1:x_max,y]):
+            views = [trees[0:x,y],
+                     trees[x+1:x_max,y],
+                     trees[x,0:y],
+                     trees[x,y+1:y_max] ]
+            if any((h > max(v) for v in views)):
                 v[x, y] = 1
-                continue                
-            if h > max(trees[x,0:y]) or h > max(trees[x,y+1:y_max]):
-                v[x, y] = 1
-                continue
     return v
 
 def score(trees):
@@ -33,14 +33,14 @@ def score(trees):
                 # since (at least) one distance is zero, score is zero
                 continue
             h = trees[x,y]
-            directions = [np.flip(trees[0:x,y]),
-                          trees[x+1:x_max,y],
-                          np.flip(trees[x,0:y]),
-                          trees[x,y+1:y_max] ]
-            s[x,y] = math.prod((get_dist(h, d) for d in directions))
+            views = [np.flip(trees[0:x,y]),
+                     trees[x+1:x_max,y],
+                     np.flip(trees[x,0:y]),
+                     trees[x,y+1:y_max] ]
+            s[x,y] = math.prod((sight_distance(h, v) for v in views))
     return s
 
-def get_dist(h, r):
+def sight_distance(h, r):
     for i in range(len(r)):
         if r[i] >= h:
             break
