@@ -27,14 +27,14 @@ def move_tail(h, t):
     hx, hy = h
     tx, ty = t
     if abs(hx-tx) <= 1 and abs(hy-ty) <= 1:
-        # touching
-        m = (0,0)
-    elif hx==tx or hy==ty:
-        # on the same row/col -> distance is always 2 on 1 axis
-        m = ((hx-tx)//2, (hy-ty)//2)
-    else:        
-        m = (int((hx-tx)/abs(hx-tx)), int((hy-ty)/abs(hy-ty)))
-    return tuple(map(lambda x, y: x + y, t, m))
+        # touching, dont move
+        return t
+    dx, dy = (0,0)
+    if hx != tx:
+        dx = int((hx-tx)/abs(hx-tx))
+    if hy != ty:
+        dy = int((hy-ty)/abs(hy-ty))
+    return tuple(map(lambda x, y: x + y, t, (dx, dy)))
 
 if __name__ == '__main__':
     moves = []
