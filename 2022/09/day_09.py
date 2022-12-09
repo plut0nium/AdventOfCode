@@ -7,18 +7,30 @@ input_file = "input"
 #input_file = "test01.txt"
 #input_file = "test02.txt"
 
-grid = defaultdict(int)
-grid2 = defaultdict(int)
-
 directions = {'U':(0,1),'D':(0,-1),'L':(-1,0),'R':(1,0)}
+
+def rope_bridge(length, moves):
+    grid = defaultdict(int)
+    rope = [(0,0) for _ in range(length)]
+    for m in moves:
+        d,n = m
+        for i in range(n):
+            # move Head
+            rope[0] = tuple(map(lambda x, y: x + y, rope[0], directions[d]))
+            # move Tail
+            for i in range(1,len(rope)):
+                rope[i] = move_tail(rope[i-1], rope[i])
+            grid[rope[-1]] += 1
+    return len(grid)
 
 def move_tail(h, t):
     hx, hy = h
     tx, ty = t
     if abs(hx-tx) <= 1 and abs(hy-ty) <= 1:
+        # touching
         m = (0,0)
     elif hx==tx or hy==ty:
-        # on the same row/col
+        # on the same row/col -> distance is always 2 on 1 axis
         m = ((hx-tx)//2, (hy-ty)//2)
     else:        
         m = (int((hx-tx)/abs(hx-tx)), int((hy-ty)/abs(hy-ty)))
@@ -29,21 +41,6 @@ if __name__ == '__main__':
     for l in open(input_file, 'r').readlines():
         d, n = l.strip().split()
         moves.append((d, int(n)))
-    rope = [(0,0), (0,0)]
-    rope2 = [(0,0) for _ in range(10)]
 
-    for m in moves:
-        d,n = m
-        for i in range(n):
-            # move Head
-            rope[0] = tuple(map(lambda x, y: x + y, rope[0], directions[d]))
-            rope2[0] = tuple(map(lambda x, y: x + y, rope2[0], directions[d]))
-            # move Tail
-            rope[1] = move_tail(rope[0], rope[1])
-            for i in range(1,len(rope2)):
-                rope2[i] = move_tail(rope2[i-1], rope2[i])
-            grid[rope[1]] += 1
-            grid2[rope2[-1]] += 1
-
-    print("Part #1 :", len(grid))
-    print("Part #2 :", len(grid2))
+    print("Part #1 :", rope_bridge(2, moves))
+    print("Part #2 :", rope_bridge(10, moves))
