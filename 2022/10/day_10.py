@@ -5,11 +5,8 @@ input_file = "input"
 #input_file = "test01.txt"
 #input_file = "test02.txt"
 
-C = [20+40*i for i in range(6)]
-
 def process_cycle(cycle, X):
-    if cycle in C:
-        C.remove(cycle)
+    if cycle % 40 == 20:
         return cycle*X
     return 0
 
