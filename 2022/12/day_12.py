@@ -11,8 +11,7 @@ END = ord('E')
 
 moves = ((1, 0), (-1, 0), (0, -1), (0, 1))
 
-def hill_climbing_algorithm(start_coord, height_map):
-    """ More a Hill Descending Algorithm """
+def descend_hill(start_coord, height_map):
     visited = {}
     candidate = [(start_coord, 0)]
     while len(candidate):
@@ -28,6 +27,8 @@ def hill_climbing_algorithm(start_coord, height_map):
                 # cannot climb if step > 1 in the ascending direction
                 continue
             if dest not in visited or visited[dest] > steps+1:
+                # not yet visited
+                # or we found a shorter path
                 candidate.append((dest, steps+1))
         visited[current] = steps
     return visited
@@ -36,21 +37,21 @@ if __name__ == '__main__':
     with open(input_file, 'r') as f:
         m = [[ord(h) for h in l] for l in f.read().strip().split('\n')]
 
-    for r in range(len(m)):
+    for r in range(len(m)): # find START and END
         if START in m[r]:
             start_coord = (r, m[r].index(START))
         if END in m[r]:
             end_coord = (r, m[r].index(END))
             
-    height_map = np.array(m)
+    height_map = np.array(m) # allow tuples for indexing
     height_map[start_coord] = ord('a')
     height_map[end_coord] = ord('z')
 
     # start from the top
-    # allows for easily solving parts 1 & 2
-    visited = hill_climbing_algorithm(end_coord, height_map)
+    # allows for easily solving parts 1 & 2 in a single pass
+    visited = descend_hill(end_coord, height_map)
     
-    # potential starting points
+    # find potential starting points
     s = np.where(height_map == ord('a'))
     starting_points = list(zip(s[0], s[1]))
 
