@@ -56,11 +56,17 @@ if __name__ == '__main__':
     p1 -= sum(1 for b in beacons if b[1]==Y)
     
     p2 = None
-    for y in range(search_area[1][0], search_area[1][1]):
-        c = scan_y(sensors, y)
-        if len(c) > 1:
-            x = c[0][1]+1
-            p2 = tuning_frequency(x, y)
+    for y in range(search_area[1][0], search_area[1][1]//2 + 1):
+        y0 = search_area[1][1]//2
+        for y1 in (y0 - y, y0 + y):
+            c = scan_y(sensors, y1)
+            if len(c) > 1:
+                # we have a hole in the covered range
+                x = c[0][1]+1
+                if x in range(search_area[0][0], search_area[0][1]):
+                    p2 = tuning_frequency(x, y1)
+                    break
+        if p2 is not None:
             break
 
     print("Part #1 :", p1)
