@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 from time import time
-from copy import deepcopy
 
 input_file = "input"
 # input_file = "test01.txt"
@@ -26,7 +25,7 @@ def steam_path(a, b, droplet, visited=None):
     adj = [tuple(map(sum, zip(a, d))) for d in dirs]
     if b in adj:
         # b is directly reachable
-        return 1
+        return 1, visited
     candidate = [(a, manhattan(a, origin)) for a in adj]
     for n, d in sorted(candidate, key=lambda a: a[1]):
         if n in droplet:
@@ -35,20 +34,22 @@ def steam_path(a, b, droplet, visited=None):
         if n in visited:
             # already checked
             continue
-        p = steam_path(n, b, droplet, visited)
+        p, v = steam_path(n, b, droplet, visited)
         if p is not None:
-            return (p + 1)
-    return None
+            visited.update(v)
+            return (p + 1), visited
+    return None, visited
+
 
 if __name__ == '__main__':
     start_time = time()
-    
     cubes = dict.fromkeys([tuple(map(int, l.strip().split(',')))
                            for l in open(input_file, 'r').readlines()], None)
-
     pockets = set()
     for xyz in cubes.keys():
         if cubes[xyz] is None:
+            # first counter tracks faces exposed to another solid block
+            # second is faces exposed to air in a pocket
             cubes[xyz] = list(0 for _ in range(2))
         for d in dirs:
             adj = tuple(map(sum, zip(xyz, d)))
@@ -58,14 +59,15 @@ if __name__ == '__main__':
             # part 1 ends here...
             else:
                 # check if pocket
-                #print("checking pocket", adj)
                 if adj in pockets:
                     cubes[xyz][1] += 1
                 else:
                     # we assume origin is outside of droplet
-                    s = steam_path(adj, origin, cubes)
-                    if s is None:
-                        pockets.add(adj)
+                    l, v = steam_path(adj, origin, cubes)
+                    if l is None:
+                        # found a pocket
+                        # add all visited cells to cache
+                        pockets.update(v)
                         cubes[xyz][1] += 1
     
     print("Part #1 :", len(cubes) * 6 - sum(v[0] for v in cubes.values()))
