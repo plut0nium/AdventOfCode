@@ -35,11 +35,11 @@ def count_ground(grid):
     xmin, xmax, ymin, ymax = size(grid)
     return (abs(xmax - xmin) +1 ) * (abs(ymax - ymin) + 1) - len(grid)
 
-def unstable_diffusion(grid):
-    m = 0
-    p1 = 0
+def unstable_diffusion(grid, m=0, n=None):
+    # m is the (optional) number of loops that grid has already been through
+    # n is the number of loops to perform
+    m0 = m
     while True:
-    # for _ in range(10):
         for p, e in grid.items():
             c = None
             if any((p[0]+d[0],p[1]+d[1]) in grid for d in dirs.values()):
@@ -51,6 +51,7 @@ def unstable_diffusion(grid):
                         c = (p[0]+dirs[moves[j][0]][0],p[1]+dirs[moves[j][0]][1])
                         break
             grid[p] = c if c is not None else '#'
+        m += 1
         candidates = Counter(grid.values())
         if len(candidates) == 1:
             # PART2 : no elve will move -> finished
@@ -65,10 +66,9 @@ def unstable_diffusion(grid):
             else:
                 # dont move
                 grid[p] = '#'
-        m += 1
-        if m == 10:
-            p1 = count_ground(grid)
-    return p1, m+1
+        if n is not None and (m - m0) == n:
+            break
+    return grid, m
 
 
 if __name__ == '__main__':
@@ -79,9 +79,12 @@ if __name__ == '__main__':
                 if c == '#':
                     grid[(x,y)] = c
 
-    p1, p2 = unstable_diffusion(grid)
-
+    grid, _ = unstable_diffusion(grid, n=10)
+    p1 = count_ground(grid)
+    
     print("Part #1 :", p1)
+    
+    grid, p2 = unstable_diffusion(grid, m=10)
    
     print("Part #2 :", p2)
     
