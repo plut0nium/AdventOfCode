@@ -35,14 +35,7 @@ def count_ground(grid):
     xmin, xmax, ymin, ymax = size(grid)
     return (abs(xmax - xmin) +1 ) * (abs(ymax - ymin) + 1) - len(grid)
 
-
-if __name__ == '__main__':
-    start_time = time()
-    with open(input_file, 'r') as f:
-        for y, l in enumerate(f.readlines()):
-            for x, c in enumerate(l):
-                if c == '#':
-                    grid[(x,y)] = c
+def unstable_diffusion(grid):
     m = 0
     p1 = 0
     while True:
@@ -75,9 +68,21 @@ if __name__ == '__main__':
         m += 1
         if m == 10:
             p1 = count_ground(grid)
+    return p1, m+1
+
+
+if __name__ == '__main__':
+    start_time = time()
+    with open(input_file, 'r') as f:
+        for y, l in enumerate(f.readlines()):
+            for x, c in enumerate(l):
+                if c == '#':
+                    grid[(x,y)] = c
+
+    p1, p2 = unstable_diffusion(grid)
 
     print("Part #1 :", p1)
    
-    print("Part #2 :", m+1)
+    print("Part #2 :", p2)
     
     print("Execution time: {:.6f}s".format((time() - start_time)))
