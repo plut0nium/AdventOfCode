@@ -4,7 +4,7 @@
 from time import time
 
 input_file = "input"
-input_file = "test01.txt"
+# input_file = "test01.txt"
 
 decryption_key = 811589153
 

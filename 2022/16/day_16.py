@@ -3,7 +3,7 @@
 
 import re
 from time import time
-from copy import copy
+from copy import copy, deepcopy
 
 input_file = "input"
 input_file = "test01.txt"

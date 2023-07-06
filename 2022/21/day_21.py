@@ -5,7 +5,7 @@ from time import time
 from scipy.optimize import root_scalar
 
 input_file = "input"
-#input_file = "test01.txt"
+# input_file = "test01.txt"
 
 def monkey_math(m, monkeys):
     if isinstance(monkeys[m], int) or isinstance(monkeys[m], float):
