@@ -1,3 +1,7 @@
 # ignore AoC input files
 **/input
 **/input.txt
+
+# spyder project
+**/.spyproject
+
