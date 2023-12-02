@@ -10,22 +10,22 @@ input_file = "input"
 BAG_CONTENT = [12, 13, 14]
 
 def parse_game(g):
-    s = g.split(": ")
-    id = int(s[0][5:])
+    id, draws = g.split(": ")
+    id = int(id[5:])
     rounds = []
-    for r in s[1].split("; "):
-        counts = [0,0,0]
-        for t in r.split(', '):
+    for d in draws.split("; "):
+        r, g, b = (0,0,0)
+        for t in d.split(', '):
             n, c = t.split(" ")
             if c == "red":
-                counts[0] += int(n)
+                r = int(n)
             elif c == "green":
-                counts[1] += int(n)
+                g = int(n)
             elif c == "blue":
-                counts[2] += int(n)
+                b = int(n)
             else:
                 print("ERROR")
-        rounds.append(counts)
+        rounds.append((r,g,b))
     return id, rounds
 
 def part1(games, content):
