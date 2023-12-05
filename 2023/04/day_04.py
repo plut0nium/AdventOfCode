@@ -13,12 +13,8 @@ def parse_card(card_str):
     return card_id, winning, numbers
 
 def count_card_wins(card):
-    wins = 0
     card_id, winning, numbers = card
-    for n in numbers:
-        if n in winning:
-            wins += 1
-    return wins
+    return len([n for n in numbers if n in winning])
 
 def part1(cards):
     total_points = 0
