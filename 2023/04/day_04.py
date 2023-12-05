@@ -8,7 +8,7 @@ input_file = "input"
 def parse_card(card_str):
     card_id, card_numbers = card_str.split(":")
     card_id = int(card_id[4:])
-    winning, numbers = map(lambda s: [int(i) for i in s.strip().split(" ") if len(i) > 0],
+    winning, numbers = map(lambda s: [int(i) for i in s.strip().split()],
                            card_numbers.split("|"))
     return card_id, winning, numbers
 
