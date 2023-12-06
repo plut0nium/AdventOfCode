@@ -16,7 +16,7 @@ _At some point, I will eventually lose the motivation, or just not have the time
 _As a result, I did not complete a full AoC event up to now._
 
 * 2018
-* 2019 (not included yet)
+* 2019
 * 2020
 * 2021
 * 2022
