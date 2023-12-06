@@ -14,13 +14,6 @@ def parse_races(races_str):
     distance = [int(d) for d in races_str[1][10:].split()]
     return [(time[i], distance[i]) for i in range(len(time))] 
 
-def parse_races2(races_str):
-    # single race -> concatenate the numbers
-    races_str = races_str.split("\n")[:2]
-    time = int(races_str[0][10:].replace(" ","")) 
-    distance = int(races_str[1][10:].replace(" ",""))
-    return (time, distance) 
-
 def part1(races):
     record_beaten = [0 for _ in races]
     for i, r in enumerate(races):
@@ -61,6 +54,6 @@ if __name__ == '__main__':
     with open(input_file, 'r') as f:
         races = parse_races(f.read())
     print("Part #1 :", part1(races))
-    with open(input_file, 'r') as f:
-        race = parse_races2(f.read())
+    race = tuple((reduce(lambda x,y: x * 10 ** int(math.log10(y) + 1) + y , z)
+                  for z in zip(*races)))
     print("Part #2 :", part2(race))
