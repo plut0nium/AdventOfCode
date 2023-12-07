@@ -9,7 +9,6 @@ from collections import Counter
 from functools import cmp_to_key, partial
 
 CARD_LABELS = ["A", "K", "Q", "J", "T", "9", "8", "7", "6", "5", "4", "3", "2"]
-CARD_LABELS2 = ["A", "K", "Q", "T", "9", "8", "7", "6", "5", "4", "3", "2", "J"]
 
 def parse_hands(hands_list):
     hands = []
@@ -19,14 +18,17 @@ def parse_hands(hands_list):
         hands.append((h,b))
     return hands
 
+def get_card_rank(card, use_joker=False):
+    if use_joker and card == 'J':
+        return 0
+    return len(CARD_LABELS) - CARD_LABELS.index(card)
+
 def compare_hands(h1, h2, use_joker=False):
     # return  1 if h1 > h2
     #        -1 if h1 < h2
     #         0 if equal
-    h1 = h1[0]
-    h2 = h2[0]
-    c1 = Counter(h1)
-    c2 = Counter(h2)
+    c1 = Counter(h1[0])
+    c2 = Counter(h2[0])
     if use_joker:
         # part 2
         for c in [c1, c2]:
@@ -48,12 +50,12 @@ def compare_hands(h1, h2, use_joker=False):
     else:
         if max(c1.values()) == 2:
             # check for two pairs
-            cc1 = Counter(c1.values()) # counter of counter, probably overkill
-            cc2 = Counter(c2.values())
-            if cc1[2] == 2 and cc2[2] < 2:
+            c12 = list(c1.values()).count(2)
+            c22 = list(c2.values()).count(2)
+            if c12 == 2 and c22 < 2:
                 # h1 has 2 pairs
                 return 1
-            elif cc2[2] == 2 and cc1[2] < 2:
+            elif c22 == 2 and c12 < 2:
                 # h2 has 2 pairs
                 return -1
             else:
@@ -68,15 +70,10 @@ def compare_hands(h1, h2, use_joker=False):
             else:
                 pass
         # tie
-        if use_joker:
-            # part 2
-            _card_labels = CARD_LABELS2
-        else:
-            _card_labels = CARD_LABELS
         for i in range(5):
-            if _card_labels.index(h1[i]) < _card_labels.index(h2[i]):
+            if get_card_rank(h1[0][i], use_joker) > get_card_rank(h2[0][i], use_joker):
                 return 1
-            elif _card_labels.index(h1[i]) > _card_labels.index(h2[i]):
+            elif get_card_rank(h1[0][i], use_joker) < get_card_rank(h2[0][i], use_joker):
                 return -1
             else:
                 pass
