@@ -6,6 +6,8 @@ input_file = "input"
 # input_file = "test02.txt"
 
 from collections import Counter
+from functools import cmp_to_key
+
 CARD_LABELS = ["A", "K", "Q", "J", "T", "9", "8", "7", "6", "5", "4", "3", "2"]
 
 def parse_hands(hands_list):
@@ -17,15 +19,19 @@ def parse_hands(hands_list):
     return hands
 
 def compare_hands(h1, h2):
-    # return True if h1 > h2
+    # return  1 if h1 > h2
+    #        -1 if h1 < h2
+    #         0 if equal
+    h1 = h1[0]
+    h2 = h2[0]
     c1 = Counter(h1)
     c2 = Counter(h2)
     # print(c1)
     # print(c2)
     if max(c1.values()) > max(c2.values()):
-        return True
+        return 1
     elif max(c1.values()) < max(c2.values()):
-        return False
+        return -1
     else:
         if max(c1.values()) == 2:
             # check for two pairs
@@ -34,36 +40,31 @@ def compare_hands(h1, h2):
             # print(cc1)
             # print(cc2)
             if cc1[2] == 2 and cc2[2] < 2:
-                return True
+                return 1
             elif cc2[2] == 2 and cc1[2] < 2:
-                return False
+                return -1
             else:
                 pass
         if max(c1.values()) == 3:
             # check for Full House
             if 2 in c1.values() and 2 not in c2.values():
-                return True
+                return 1
             elif 2 in c2.values() and 2 not in c1.values():
-                return False
+                return -1
             else:
                 pass
         # equality
         for i in range(5):
             if CARD_LABELS.index(h1[i]) < CARD_LABELS.index(h2[i]):
-                return True
+                return 1
             elif CARD_LABELS.index(h1[i]) > CARD_LABELS.index(h2[i]):
-                return False
+                return -1
             else:
                 pass
-    return None
+    return 0
 
 def part1(hands):
-    for i in range(len(hands)-1, 0, -1):
-        for j in range(i-1):
-            if compare_hands(hands[j][0], hands[j+1][0]):
-                # permute
-                hands[j], hands[j+1] = hands[j+1], hands[j]
-    print(hands)
+    hands.sort(key=cmp_to_key(compare_hands))
     return sum([(i+1) * h[1] for i,h in enumerate(hands)])
 
 def part2(hands):
