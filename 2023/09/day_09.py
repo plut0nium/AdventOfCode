@@ -11,10 +11,15 @@ def parse_report(report_lines):
         report.append([int(g) for g in r.strip().split()])
     return report
 
-def extrapolate(history):
+def extrapolate(history, backwards=False):
     steps = []
-    steps.append(history)
+    if backwards:
+        steps.append(list(reversed(history)))
+    else:
+        steps.append(history)
     while any((v !=0 for v in steps[-1])):
+        # we could also check if all values are identical
+        # this would save 1 step...
         steps.append(diff(steps[-1]))
     # for s in steps:
     #     print(s)
@@ -32,7 +37,7 @@ def part1(report):
     return sum([extrapolate(history) for history in report])
 
 def part2(report):
-    return None
+    return sum([extrapolate(history, backwards=True) for history in report])
 
 
 if __name__ == '__main__':
