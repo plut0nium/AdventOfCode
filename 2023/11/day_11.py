@@ -8,9 +8,27 @@ input_file = "input"
 GALAXY = "#"
 
 from itertools import combinations
+from copy import copy
 
 def manhattan(a, b):
     return abs(b[0] - a[0]) + abs(b[1] - a[1])
+
+def manhattan_expand(a, b, galaxies, age=1):
+    x_min, x_max = min(a[0], b[0]), max(a[0], b[0])
+    y_min, y_max = min(a[1], b[1]), max(a[1], b[1])
+    x_values, y_values = map(set, zip(*galaxies))
+    distance = 0
+    for x in range(x_min+1, x_max+1):
+        if x in x_values:
+            distance += 1
+        else:
+            distance += age
+    for y in range(y_min+1, y_max+1):
+        if y in y_values:
+            distance += 1
+        else:
+            distance += age
+    return distance
 
 def parse_galaxies(image_list):
     galaxies = []
@@ -30,6 +48,7 @@ def print_galaxies(galaxies):
         print("")
 
 def expand(galaxies):
+    galaxies = copy(galaxies) # make a copy
     x_values, y_values = map(set, zip(*galaxies))
     x_min, x_max, y_min, y_max = min(x_values), max(x_values), \
                                  min(y_values), max(y_values)
@@ -56,7 +75,11 @@ def part1(galaxies):
     return sum
 
 def part2(galaxies):
-    return None
+    sum = 0
+    for c in combinations(galaxies, 2):
+        sum += manhattan_expand(c[0], c[1], galaxies, 1_000_000)
+    return sum
+
 
 
 if __name__ == '__main__':
