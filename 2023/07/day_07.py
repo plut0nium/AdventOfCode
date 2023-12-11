@@ -6,7 +6,7 @@ input_file = "input"
 # input_file = "test02.txt"
 
 from collections import Counter
-from functools import cmp_to_key
+from functools import cmp_to_key, partial
 
 CARD_LABELS = ["A", "K", "Q", "J", "T", "9", "8", "7", "6", "5", "4", "3", "2"]
 
@@ -18,16 +18,31 @@ def parse_hands(hands_list):
         hands.append((h,b))
     return hands
 
-def compare_hands(h1, h2):
+def get_card_rank(card, use_joker=False):
+    if use_joker and card == 'J':
+        return 0
+    return len(CARD_LABELS) - CARD_LABELS.index(card)
+
+def compare_hands(h1, h2, use_joker=False):
     # return  1 if h1 > h2
     #        -1 if h1 < h2
     #         0 if equal
-    h1 = h1[0]
-    h2 = h2[0]
-    c1 = Counter(h1)
-    c2 = Counter(h2)
-    # print(c1)
-    # print(c2)
+    c1 = Counter(h1[0])
+    c2 = Counter(h2[0])
+    if use_joker:
+        # part 2
+        for c in [c1, c2]:
+            # add the joker count to the most common (non-joker) card
+            if c['J'] == 0 or c['J'] == 5:
+                # no joker, or 5 jokers
+                # do nothing
+                continue
+            if c.most_common(1)[0][0] == 'J':
+                # joker is the most common
+                c[c.most_common(2)[1][0]] += c['J']
+            else:
+                c[c.most_common(1)[0][0]] += c['J']
+            del c['J']
     if max(c1.values()) > max(c2.values()):
         return 1
     elif max(c1.values()) < max(c2.values()):
@@ -35,15 +50,16 @@ def compare_hands(h1, h2):
     else:
         if max(c1.values()) == 2:
             # check for two pairs
-            cc1 = Counter(c1.values())
-            cc2 = Counter(c2.values())
-            # print(cc1)
-            # print(cc2)
-            if cc1[2] == 2 and cc2[2] < 2:
+            c12 = list(c1.values()).count(2)
+            c22 = list(c2.values()).count(2)
+            if c12 == 2 and c22 < 2:
+                # h1 has 2 pairs
                 return 1
-            elif cc2[2] == 2 and cc1[2] < 2:
+            elif c22 == 2 and c12 < 2:
+                # h2 has 2 pairs
                 return -1
             else:
+                # both have 2 pairs
                 pass
         if max(c1.values()) == 3:
             # check for Full House
@@ -53,11 +69,11 @@ def compare_hands(h1, h2):
                 return -1
             else:
                 pass
-        # equality
+        # tie
         for i in range(5):
-            if CARD_LABELS.index(h1[i]) < CARD_LABELS.index(h2[i]):
+            if get_card_rank(h1[0][i], use_joker) > get_card_rank(h2[0][i], use_joker):
                 return 1
-            elif CARD_LABELS.index(h1[i]) > CARD_LABELS.index(h2[i]):
+            elif get_card_rank(h1[0][i], use_joker) < get_card_rank(h2[0][i], use_joker):
                 return -1
             else:
                 pass
@@ -68,7 +84,8 @@ def part1(hands):
     return sum([(i+1) * h[1] for i,h in enumerate(hands)])
 
 def part2(hands):
-    return None
+    hands.sort(key=cmp_to_key(partial(compare_hands, use_joker=True)))
+    return sum([(i+1) * h[1] for i,h in enumerate(hands)])
 
 
 if __name__ == '__main__':
