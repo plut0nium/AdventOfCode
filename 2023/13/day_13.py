@@ -94,8 +94,8 @@ def part2(patterns):
                 # fix a smudge at x,y
                 if (x_fix,y_fix) in p_fixed:
                     p_fixed.pop((x_fix,y_fix))
-                else:
-                    p_fixed[(x_fix,y_fix)] = ROCK
+                # else: # this is NOT needed we can only fix 1 side
+                #     p_fixed[(x_fix,y_fix)] = ROCK
                 current_lines.update(find_reflection(p_fixed))
         reflection_lines.extend(f for f in current_lines.difference(original_lines))
     return summarize(reflection_lines)
