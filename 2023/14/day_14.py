@@ -16,9 +16,6 @@ DIRECTIONS = { "NW": (-1, -1), "N" : ( 0, -1), "NE": ( 1, -1),
                "SW": (-1,  1), "S" : ( 0,  1), "SE": ( 1,  1)
              }
 
-from copy import copy
-from functools import cache
-
 def parse_rocks(input_lines):
     rocks = {}
     for y, l in enumerate(input_lines):
@@ -40,18 +37,18 @@ def tilt(rocks, d="N"):
     x_min, x_max, y_min, y_max = grid_size(rocks)
     while True:
         moved = 0
-        for y in range(y_min, y_max+1):
-            for x in range(x_min, x_max+1):
-                if (x,y) not in rocks or rocks[(x,y)] == SQUARE:
-                    continue
-                x_dest, y_dest = (x + DIRECTIONS[d][0], y + DIRECTIONS[d][1])
-                if x_dest < x_min or x_dest > x_max \
-                   or y_dest < y_min or y_dest > y_max:
-                    continue
-                if (x_dest, y_dest) not in rocks:
-                    rocks[(x_dest, y_dest)] = ROUND
-                    rocks.pop((x,y))
-                    moved += 1
+        round_rocks = set(c for c, r in rocks.items() if r == ROUND)
+        for r in round_rocks:
+            x, y = r
+            x_dest, y_dest = (x + DIRECTIONS[d][0], y + DIRECTIONS[d][1])
+            if x_dest < x_min or x_dest > x_max \
+               or y_dest < y_min or y_dest > y_max:
+                # out of platform
+                continue
+            if (x_dest, y_dest) not in rocks:
+                rocks[(x_dest, y_dest)] = ROUND
+                rocks.pop((x,y))
+                moved += 1
         if not moved:
             break
     return rocks
