@@ -1,6 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import sys
+sys.path.append("..")
+
+from utils import timing
+
 input_file = "input"
 # input_file = "test01.txt"
 # input_file = "test02.txt"
@@ -67,11 +72,13 @@ def cycle(rocks):
         rocks = tilt(rocks, d)
     return rocks
 
+@timing
 def part1(rocks):
     rocks = tilt(rocks)
     # print_rocks(rocks)
     return calc_load(rocks)
 
+@timing
 def part2(rocks, n=CYCLES_COUNT):
     moved = []
     loads = []
