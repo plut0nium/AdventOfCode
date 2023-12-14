@@ -74,6 +74,7 @@ def part1(rocks):
 
 def part2(rocks, n=CYCLES_COUNT):
     moved = []
+    loads = []
     for i in range(n):
         rocks_previous = set(c for c, r in rocks.items() if r == ROUND)
         rocks = cycle(rocks)
@@ -86,13 +87,11 @@ def part2(rocks, n=CYCLES_COUNT):
             break
         # cache the last results
         moved.append(m)
+        loads.append(calc_load(rocks))
         if len(moved) > 100:
             moved.pop(0)
-    for j in range(r):
-        # cycle for r additional steps
-        rocks = cycle(rocks)
-        # print(i+j+1, calc_load(rocks))
-    return calc_load(rocks)
+            loads.pop(0)
+    return loads[moved.index(m) + r]
 
 
 if __name__ == '__main__':
