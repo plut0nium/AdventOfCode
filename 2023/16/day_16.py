@@ -26,9 +26,8 @@ def grid_size(grid):
     x, y = map(set, zip(*grid.keys()))
     return min(x), max(x), min(y), max(y)
 
-@timing
-def part1(contraption):
-    beams = [((0,0),"E")]
+def energize(contraption, initial_beam):
+    beams = [initial_beam]
     visited = set()
     x_min, x_max, y_min, y_max = grid_size(contraption)
     while len(beams):
@@ -37,7 +36,8 @@ def part1(contraption):
             # we already went through this tile in this direction
             # -> do nothing
             continue
-        visited.add(b)
+        if b != initial_beam: # avoid registering 1st step
+            visited.add(b)
         b_pos, b_dir = b
         # move 1 step in the direction
         new_pos = b_pos[0]+DIRECTIONS[b_dir][0], b_pos[1]+DIRECTIONS[b_dir][1]
@@ -73,12 +73,24 @@ def part1(contraption):
             raise ValueError(f'Unknown contraption device: {contraption[new_pos]}')
     energized = set(e[0] for e in visited)
     # for y in range(y_max+1):
-    #     print("".join("#" if (x,y) in e_filtered else "." for x in range(x_max+1)))
+    #     print("".join("#" if (x,y) in energized else "." for x in range(x_max+1)))
     return len(energized)
 
 @timing
+def part1(contraption):
+    return energize(contraption, ((-1,0), "E"))
+
+@timing
 def part2(contraption):
-    return None
+    x_min, x_max, y_min, y_max = grid_size(contraption)
+    energized = []
+    for x in range(x_min, x_max+1):
+        energized.append(energize(contraption, ((x, -1), "S")))
+        energized.append(energize(contraption, ((x, y_max+1), "N")))
+    for y in range(y_min, y_max+1):
+        energized.append(energize(contraption, ((-1, y), "E")))
+        energized.append(energize(contraption, ((x_max+1, y), "W")))
+    return max(energized)
 
 
 if __name__ == '__main__':
