@@ -10,12 +10,13 @@ input_file = "input"
 # input_file = "test01.txt"
 # input_file = "test02.txt"
 
-from collections import OrderedDict
+from functools import cache
 
 def parse_sequence(input_lines):
     sequence = "".join(l.strip() for l in input_lines).split(",")
     return sequence
 
+@cache
 def HASH(str):
     # Holiday ASCII String Helper algorithm
     h = 0
@@ -31,7 +32,7 @@ def part1(sequence):
 
 @timing
 def part2(sequence):
-    boxes = [OrderedDict() for _ in range(256)]
+    boxes = [{} for _ in range(256)]
     for s in sequence:
         focal_length = None
         if s.endswith("-"):
