@@ -5,3 +5,5 @@
 # spyder project
 **/.spyproject
 
+# compiled modules
+*.pyc
