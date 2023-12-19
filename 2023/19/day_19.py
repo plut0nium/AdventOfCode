@@ -16,6 +16,8 @@ REJECT = "R"
 
 from operator import lt, gt
 import re
+from copy import copy
+from functools import reduce
 
 OP = {">": gt, "<": lt}
 rule_re = re.compile(r'(?:(\w+)([<>])(\d+):(\w+))|(\w+)')
@@ -28,21 +30,22 @@ def parse_workflow(w_str):
     rules = []
     for r in rule_re.findall(rules_str):
         if not r[-1]:
-            rules.append((r[3], r[0], OP[r[1]], int(r[2])))
+            rules.append((r[0], OP[r[1]], int(r[2]), r[3]))
         else:
             # default rule
-            rules.append((r[-1], None, None, None))
+            rules.append((r[-1], ))
     return name, rules
 
 def inspect(part, workflows, workname=START):
     # return True if part is [A]ccepted according to workflows
     for r in workflows[workname]:
-        if r[1] is None:
+        if len(r) == 1:
+            # default rule
             dest = r[0]
             break
-        op = r[2]
-        if op(part[r[1]], r[3]):
-            dest = r[0]
+        op = r[1] # comparison operator
+        if op(part[r[0]], r[2]):
+            dest = r[-1]
             break
     if dest == ACCEPT:
         return True
@@ -56,8 +59,41 @@ def part1(parts, workflows):
     return sum(sum(p.values()) for p in parts if inspect(p, workflows))
 
 @timing
-def part2(parts):
-    return None
+def part2(workflows):
+    assert(START in workflows)
+    accepted = 0
+    stack = [(START, {n:range(1,4001) for n in "xmas"})]
+    while len(stack):
+        rule, ratings = stack.pop()
+        for r in workflows[rule]:
+            if len(r) == 1:
+                # default rule
+                if r[0] == ACCEPT:
+                    # all remaining parts are [A]ccepted
+                    accepted += reduce(lambda a,b: a*b, [len(v) for v in ratings.values()])
+                elif r[0] == REJECT:
+                    pass # do nothing with [R]ejected
+                else:
+                    # all remaining parts to be checked againt r[0]
+                    stack.append((r[0], ratings))
+                break
+            else:
+                assert(r[2] in ratings[r[0]])
+                if r[1] == lt: # LT
+                    rt1 = copy(ratings)
+                    rt1[r[0]] = range(ratings[r[0]].start, r[2])
+                    ratings[r[0]] = range(r[2], ratings[r[0]].stop)
+                else: # GT
+                    rt1 = copy(ratings)
+                    rt1[r[0]] = range(r[2]+1, ratings[r[0]].stop)
+                    ratings[r[0]] = range(ratings[r[0]].start, r[2]+1)
+                if r[-1] == ACCEPT:
+                    accepted += reduce(lambda a,b: a*b, [len(v) for v in rt1.values()])
+                elif r[-1] == REJECT:
+                    pass
+                else:
+                    stack.append((r[-1], rt1))
+    return accepted
 
 
 if __name__ == '__main__':
@@ -66,4 +102,4 @@ if __name__ == '__main__':
         workflows = {n:r for n, r in (parse_workflow(w.strip()) for w in workflows_str.split("\n"))}
         parts = [parse_part(p.strip()) for p in parts_str.split("\n") if len(p.strip())]
     print("Part #1 :", part1(parts, workflows))
-    print("Part #2 :", part2(None))
+    print("Part #2 :", part2(workflows))
