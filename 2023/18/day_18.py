@@ -7,7 +7,7 @@ sys.path.append("..")
 from utils import timing
 
 input_file = "input"
-# input_file = "test01.txt"
+input_file = "test01.txt"
 # input_file = "test02.txt"
 
 DIRS = {"U": (0,-1), "D": (0,1), "L": (-1,0), "R": (1,0)}
@@ -18,6 +18,12 @@ def parse_plan(input_lines):
         direction, count, color = l.strip().split()
         plan.append((direction, int(count), color[1:-1]))
     return plan
+
+def hex_to_dig(color):
+    dir_index = ["R", "D", "L", "U"]
+    direction = dir_index[int(color[-1])]
+    distance = int(color[1:-1], base=16)
+    return direction, distance
 
 def grid_size(g):
     x, y = map(set, zip(*g.keys()))
@@ -50,6 +56,10 @@ def part1(plan, start_pos=(0,0)):
 
 @timing
 def part2(plan):
+    for p in plan:
+        direction, distance = hex_to_dig(p[2])
+        # print(direction, distance)
+        pass
     return None
 
 
