@@ -63,36 +63,35 @@ def part2(workflows):
     assert(START in workflows)
     accepted = 0
     stack = [(START, {n:range(1,4001) for n in "xmas"})]
+
+    def _check_rule(rule, ratings):
+        nonlocal accepted, stack
+        if r[-1] == ACCEPT:
+            # all remaining parts are [A]ccepted
+            accepted += reduce(lambda a,b: a*b, [len(v) for v in ratings.values()])
+        elif r[-1] == REJECT:
+            pass # do nothing with [R]ejected
+        else:
+            # remaining parts to be checked against next rule
+            stack.append((r[-1], ratings))
+
     while len(stack):
         rule, ratings = stack.pop()
         for r in workflows[rule]:
             if len(r) == 1:
                 # default rule
-                if r[0] == ACCEPT:
-                    # all remaining parts are [A]ccepted
-                    accepted += reduce(lambda a,b: a*b, [len(v) for v in ratings.values()])
-                elif r[0] == REJECT:
-                    pass # do nothing with [R]ejected
-                else:
-                    # all remaining parts to be checked againt r[0]
-                    stack.append((r[0], ratings))
+                _check_rule(r, ratings)
                 break
             else:
                 assert(r[2] in ratings[r[0]])
+                ratings_split = copy(ratings)
                 if r[1] == lt: # LT
-                    rt1 = copy(ratings)
-                    rt1[r[0]] = range(ratings[r[0]].start, r[2])
+                    ratings_split[r[0]] = range(ratings[r[0]].start, r[2])
                     ratings[r[0]] = range(r[2], ratings[r[0]].stop)
                 else: # GT
-                    rt1 = copy(ratings)
-                    rt1[r[0]] = range(r[2]+1, ratings[r[0]].stop)
+                    ratings_split[r[0]] = range(r[2]+1, ratings[r[0]].stop)
                     ratings[r[0]] = range(ratings[r[0]].start, r[2]+1)
-                if r[-1] == ACCEPT:
-                    accepted += reduce(lambda a,b: a*b, [len(v) for v in rt1.values()])
-                elif r[-1] == REJECT:
-                    pass
-                else:
-                    stack.append((r[-1], rt1))
+                _check_rule(r, ratings_split)
     return accepted
 
 
