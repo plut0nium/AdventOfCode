@@ -27,15 +27,26 @@ def grid_size(g):
 def part1(plan, start_pos=(0,0)):
     current_pos = start_pos
     trench = {current_pos: "#"}
-    lagoon_size = 0
     for p in plan:
         for _ in range(p[1]):
             current_pos = (current_pos[0]+DIRS[p[0]][0], current_pos[1]+DIRS[p[0]][1])
             trench[current_pos] = "#"
     x_min, x_max, y_min, y_max = grid_size(trench)
-    for y in range(y_min, y_max+1):
-        pass
-    return lagoon_size
+    
+    stack = [(x_min-1, y_min-1)]
+    expand = set()
+    while len(stack):
+        c = stack.pop()
+        expand.add(c)
+        for d in DIRS.values():
+            c_next = (c[0]+d[0], c[1]+d[1])
+            if c_next in trench or c_next in expand:
+                continue
+            elif c_next[0] < x_min-1 or c_next[0] > x_max+1 \
+                 or c_next[1] < y_min-1 or c_next[1] > y_max+1:
+                continue
+            stack.append(c_next)
+    return (x_max - x_min + 3) * (y_max - y_min + 3) - len(expand)
 
 @timing
 def part2(plan):
