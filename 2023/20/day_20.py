@@ -44,6 +44,40 @@ def parse_modules(input_lines):
             modules[n] = (mod_type, outputs, tuple(inputs[n]))
     return modules
 
+def pulse(modules, module_state):
+    pulse_counter = Counter()
+    queue = []
+    queue.append(("broadcaster", Pulse.LOW, None))
+    while len(queue):
+        dest, pulse, source = queue.pop(0)
+        pulse_counter[pulse] += 1
+        # print(pulse, "to", dest, "from", source)
+        if dest not in modules:
+            # dummy output in test 02
+            # print(f"Dummy module {dest} received {pulse} from {source}")
+            continue
+        if modules[dest][0] == ModuleType.BROADCASTER:
+            for o in modules[dest][1]:
+                queue.append((o, pulse, dest))
+        elif modules[dest][0] == ModuleType.FLIP_FLOP:
+            if pulse != Pulse.LOW:
+                continue
+            # toggle the value
+            module_state[dest] = Pulse.HIGH if module_state[dest] == Pulse.LOW else Pulse.LOW  
+            for o in modules[dest][1]:
+                queue.append((o, module_state[dest], dest))
+        elif modules[dest][0] == ModuleType.CONJUCTION:
+            module_state[dest][source] = pulse
+            if all(i == Pulse.HIGH for i in module_state[dest].values()):
+                output = Pulse.LOW
+            else:
+                output = Pulse.HIGH
+            for o in modules[dest][1]:
+                queue.append((o, output, dest))
+        else:
+            pass
+    return module_state, pulse_counter
+
 @timing
 def part1(modules, button_push=4):
     module_state = {}
@@ -54,37 +88,9 @@ def part1(modules, button_push=4):
             module_state[n] = {i:Pulse.LOW for i in inputs}
         elif mod_type == ModuleType.FLIP_FLOP:
             module_state[n] = Pulse.LOW
-    queue = []
     for _ in range(button_push):
-        queue.append(("broadcaster", Pulse.LOW, None))
-        while len(queue):
-            dest, pulse, source = queue.pop(0)
-            pulse_counter[pulse] += 1
-            # print(pulse, "to", dest, "from", source)
-            if dest not in modules:
-                # dummy output in test 02
-                # print(f"Dummy module {dest} received {pulse} from {source}")
-                continue
-            if modules[dest][0] == ModuleType.BROADCASTER:
-                for o in modules[dest][1]:
-                    queue.append((o, pulse, dest))
-            elif modules[dest][0] == ModuleType.FLIP_FLOP:
-                if pulse != Pulse.LOW:
-                    continue
-                # toggle the value
-                module_state[dest] = Pulse.HIGH if module_state[dest] == Pulse.LOW else Pulse.LOW  
-                for o in modules[dest][1]:
-                    queue.append((o, module_state[dest], dest))
-            elif modules[dest][0] == ModuleType.CONJUCTION:
-                module_state[dest][source] = pulse
-                if all(i == Pulse.HIGH for i in module_state[dest].values()):
-                    output = Pulse.LOW
-                else:
-                    output = Pulse.HIGH
-                for o in modules[dest][1]:
-                    queue.append((o, output, dest))
-            else:
-                pass
+        module_state, count = pulse(modules, module_state)
+        pulse_counter.update(count)
     return pulse_counter[Pulse.LOW] * pulse_counter[Pulse.HIGH]
 
 @timing
