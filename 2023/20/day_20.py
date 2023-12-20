@@ -44,7 +44,7 @@ def parse_modules(input_lines):
             modules[n] = (mod_type, outputs, tuple(inputs[n]))
     return modules
 
-def pulse(modules, module_state):
+def pulse(modules, module_state, rx_low=False):
     pulse_counter = Counter()
     queue = []
     queue.append(("broadcaster", Pulse.LOW, None))
@@ -55,6 +55,8 @@ def pulse(modules, module_state):
         if dest not in modules:
             # dummy output in test 02
             # print(f"Dummy module {dest} received {pulse} from {source}")
+            if rx_low and dest == "rx" and pulse == Pulse.LOW:
+                return None, None, True
             continue
         if modules[dest][0] == ModuleType.BROADCASTER:
             for o in modules[dest][1]:
@@ -76,7 +78,7 @@ def pulse(modules, module_state):
                 queue.append((o, output, dest))
         else:
             pass
-    return module_state, pulse_counter
+    return module_state, pulse_counter, False
 
 @timing
 def part1(modules, button_push=4):
@@ -89,14 +91,27 @@ def part1(modules, button_push=4):
         elif mod_type == ModuleType.FLIP_FLOP:
             module_state[n] = Pulse.LOW
     for _ in range(button_push):
-        module_state, count = pulse(modules, module_state)
+        module_state, count, _ = pulse(modules, module_state)
         pulse_counter.update(count)
     return pulse_counter[Pulse.LOW] * pulse_counter[Pulse.HIGH]
 
 @timing
 def part2(modules):
-    return None
-
+    module_state = {}
+    for n,m in modules.items():
+        mod_type, _, inputs = m
+        if mod_type == ModuleType.CONJUCTION:
+            module_state[n] = {i:Pulse.LOW for i in inputs}
+        elif mod_type == ModuleType.FLIP_FLOP:
+            module_state[n] = Pulse.LOW
+    button_spam = 0
+    rx_low = False
+    while not rx_low:
+        button_spam += 1
+        module_state, _, rx_low = pulse(modules, module_state, True)
+        if not button_spam % 10_000:
+            print("Still counting...", button_spam)
+    return button_spam
 
 
 if __name__ == '__main__':
