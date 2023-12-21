@@ -32,10 +32,11 @@ def find_path(city, start, end, move_min=0, move_max=3):
     
     while len(heap):
         heat_loss, pos, dir_counter = heappop(heap)
-        for dir_idx in range(len(DIRS)):
-            if dir_idx == 2: # backwards <- EXCLUDED
+        for dir_inc in range(len(DIRS)):
+            # dir index increments
+            if dir_inc == 2: # backwards <- EXCLUDED
                 continue
-            elif dir_idx == 0: # we do not change direction
+            elif dir_inc == 0: # we do not change direction
                 if dir_counter[1] == move_max:
                     # already move_max in this direction, we have to turn
                     continue
@@ -43,22 +44,23 @@ def find_path(city, start, end, move_min=0, move_max=3):
                     # increment counter
                     dc = dir_counter[1] + 1
             else: # 1 or 3 = turn
-                if dir_counter[1] < move_min:
+                if 0 < dir_counter[1] < move_min:
                     # part 2: we cannot change direction if we did not move
                     # at least move_min
                     continue
                 # reset counter
                 dc = 1
-            dir_idx_new = (dir_counter[0] + dir_idx) % len(DIRS)
-            dir_counter_update = (dir_idx_new, dc)
-            pos_new = (pos[0] + DIRS[dir_idx_new][0], pos[1] + DIRS[dir_idx_new][1])
+            dir_idx = (dir_counter[0] + dir_inc) % len(DIRS)
+            dir_counter_update = (dir_idx, dc)
+            pos_new = (pos[0] + DIRS[dir_idx][0], pos[1] + DIRS[dir_idx][1])
             if in_grid(city, pos_new) and (pos_new, dir_counter_update) not in visited:
                 heat_loss_new = heat_loss + city[pos_new]
-                if pos_new == end:
-                    # we reached the end
+                if pos_new == end and dc >= move_min:
+                    # we reached the end (cannot stop if < move_min)
                     return heat_loss_new
                 visited.add((pos_new, dir_counter_update))
                 heappush(heap,(heat_loss_new, pos_new, dir_counter_update))
+    return None
 
 @timing
 def part1(city):
