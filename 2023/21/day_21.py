@@ -8,7 +8,6 @@ from utils import timing
 
 input_file = "input"
 # input_file = "test01.txt"
-# input_file = "test02.txt"
 
 DIRS = {"U": (0,-1), "D": (0,1), "L": (-1,0), "R": (1,0)}
 START = "S"
@@ -51,20 +50,20 @@ def part1(garden, start_pos, steps=6):
 
 @timing
 def part2(garden, start_pos, steps=10):
-    pos = [{start_pos}]
     x_min, x_max, y_min, y_max = garden_size(garden)
-    for s in range(steps):
-        pos.append(set())
-        for p in pos[-2]:
-            for d in DIRS.values():
-                pos_next = (p[0]+d[0], p[1]+d[1])
-                if pos_next not in garden:
-                    pos[-1].add(pos_next)
-    return len(pos[-1])
+    # count rocks on a checkerboard pattern
+    central_rocks = 65**2 - part1(garden, start_pos, 64)
+    total_rocks = len([1 for x,y in garden.keys() if (x+y) % 2])
+    # total area of the diamond
+    total = (steps + 1) ** 2
+    n = steps // (x_max - x_min + 1) # 202300
+    garden_count = (n+1)**2 + n**2
+    p = total - garden_count * total_rocks + (total_rocks - central_rocks)
+    return p
 
 
 if __name__ == '__main__':
     with open(input_file, 'r') as f:
         garden, start_pos = parse_garden(f.readlines())
     print("Part #1 :", part1(garden, start_pos, 64))
-    print("Part #2 :", part2(garden, start_pos))
+    print("Part #2 :", part2(garden, start_pos, 26501365))
