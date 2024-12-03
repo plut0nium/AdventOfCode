@@ -6,4 +6,4 @@
 **/.spyproject
 
 # compiled modules
-*.pyc
+**/*.pyc
