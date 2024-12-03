@@ -5,33 +5,31 @@ input_file = "input"
 # input_file = "test01.txt"
 # input_file = "test02.txt"
 
-from copy import copy
 import re
 
-mul_re = re.compile(r'mul\(\d+,\d+\)')
-mul_re_part2 = re.compile(r'(?:mul\(\d+,\d+\))|(?:do\(\))|(?:don\'t\(\))')
+mul_re = re.compile(r'mul\(\d+,\d+\)|do\(\)|don\'t\(\)')
 
 
 def part1(program):
-    result = 0
-    valid = mul_re.findall(program)
-    for v in valid:
-        x, y = list(map(int, v[4:-1].split(',')))
-        result += x * y
-    return result
+    return run(program)
 
 
 def part2(program):
+    return run(program, part2=True)
+
+
+def run(program, part2=False):
     result = 0
     enabled = True
-    valid = mul_re_part2.findall(program)
+    valid = mul_re.findall(program)
     for v in valid:
         if v == "do()":
             enabled = True
         elif v == "don't()":
             enabled = False
         else:
-            if enabled:
+            if enabled or not part2:
+                # could get x,y directly from the regex...
                 x, y = list(map(int, v[4:-1].split(',')))
                 result += x * y
     return result
