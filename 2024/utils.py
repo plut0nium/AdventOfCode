@@ -1,6 +1,7 @@
 from time import time, perf_counter
 from functools import wraps
 
+
 def timing(func):
     @wraps(func)
     def wrap(*args, **kw):
@@ -12,4 +13,11 @@ def timing(func):
     return wrap
 
 
+def get_size(input_file, verbose=False):
+    i = []
+    for l in open(input_file, 'r').readlines():
+        i.append(len(l.strip()))
+    if verbose:
+        return f"Input size: {len(i)} rows * {max(i)} cols"
+    return len(i), max(i)
 
