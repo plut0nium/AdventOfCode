@@ -9,7 +9,8 @@ WORD = "XMAS"
 DIRS = [(-1,-1), ( 0,-1), ( 1,-1),
         (-1, 0),          ( 1, 0),
         (-1, 1), ( 0, 1), ( 1, 1)]
-DIRS_DIAG = [DIRS[0], DIRS[2], DIRS[5], DIRS[7]]
+DIRS_DIAG = [DIRS[0], DIRS[2], DIRS[7], DIRS[5]]
+
 
 def part1(word_search):
     found = 0
@@ -20,24 +21,28 @@ def part1(word_search):
             # c = "X"
             for d in DIRS:
                 x_new, y_new = x, y
-                for i in range(1,4):
+                for i in range(1,len(WORD)):
                     x_new = x_new + d[0]
                     y_new = y_new + d[1]
                     if x_new < 0 or x_new >= len(r) or \
                        y_new < 0 or y_new >= len(word_search):
-                        # no need to continue in this direction
+                        # out of grid
+                        # -> no need to continue in this direction
                         break
                     if word_search[y_new][x_new] != WORD[i]:
+                        # not the expected letter
                         break
-                    if i == 3:
+                    if i == (len(WORD) - 1):
+                        # reached the end of the word
                         found += 1                        
     return found
 
 
 def part2(word_search):
     found = 0
-    for y, r in enumerate(word_search):
-        if y == 0 or y == (len(word_search) - 1):
+    w = word_search
+    for y, r in enumerate(w):
+        if y == 0 or y == (len(w) - 1):
             # skip first and last rows
             continue
         for x, c in enumerate(r):
@@ -46,8 +51,10 @@ def part2(word_search):
                 continue
             if c != "A":
                 continue
-            if (word_search[y-1][x-1],word_search[y+1][x+1]) in [("M","S"), ("S", "M")] \
-               and (word_search[y-1][x+1],word_search[y+1][x-1]) in [("M","S"), ("S", "M")]:
+            diags = ((w[y-1][x-1]+w[y+1][x+1]),
+                     (w[y-1][x+1]+w[y+1][x-1]))
+            if all(d in ("MS","SM") for d in diags):
+                # both diagonals are MAS|SAM
                 found += 1
     return found
 
