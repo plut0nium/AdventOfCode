@@ -9,6 +9,7 @@ WORD = "XMAS"
 DIRS = [(-1,-1), ( 0,-1), ( 1,-1),
         (-1, 0),          ( 1, 0),
         (-1, 1), ( 0, 1), ( 1, 1)]
+DIRS_DIAG = [DIRS[0], DIRS[2], DIRS[5], DIRS[7]]
 
 def part1(word_search):
     found = 0
@@ -34,7 +35,21 @@ def part1(word_search):
 
 
 def part2(word_search):
-    return None
+    found = 0
+    for y, r in enumerate(word_search):
+        if y == 0 or y == (len(word_search) - 1):
+            # skip first and last rows
+            continue
+        for x, c in enumerate(r):
+            if x == 0 or x == (len(r) - 1):
+                # skip first and last cols
+                continue
+            if c != "A":
+                continue
+            if (word_search[y-1][x-1],word_search[y+1][x+1]) in [("M","S"), ("S", "M")] \
+               and (word_search[y-1][x+1],word_search[y+1][x-1]) in [("M","S"), ("S", "M")]:
+                found += 1
+    return found
 
 
 if __name__ == '__main__':
