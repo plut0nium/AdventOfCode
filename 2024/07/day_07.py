@@ -5,7 +5,7 @@ input_file = "input"
 # input_file = "test01.txt"
 # input_file = "test02.txt"
 
-from math import log10, ceil
+from math import log10, floor
 from itertools import product
 
 OPERATORS = ["+", "*", "||"]
@@ -24,9 +24,9 @@ def check_equations(equations, operators):
                 elif o == "*":
                     result *= numbers[i+1]
                 elif o == "||":
-                    # result *= 10**ceil(log10(numbers[i+1]))
-                    # result += numbers[i+1]
-                    result = int(f"{result}{numbers[i+1]}")
+                    result = result * 10**(floor(log10(numbers[i+1])) + 1)
+                    result += numbers[i+1]
+                    # result = int(f"{result}{numbers[i+1]}")
                 else:
                     raise ValueError(f"Unknown operator: {o}")
             if result == value:
