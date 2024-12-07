@@ -5,33 +5,45 @@ input_file = "input"
 # input_file = "test01.txt"
 # input_file = "test02.txt"
 
-from math import prod
+from math import log10, ceil
 from itertools import product
 
-OPERATORS = ["+", "*"]
+OPERATORS = ["+", "*", "||"]
 
-def part1(equations):
+
+def check_equations(equations, operators):
     valid = []
     for e in equations:
         value = e[0]
         numbers = e[1]
-        for operators in product(OPERATORS, repeat=(len(numbers) - 1)):
+        for ops in product(operators, repeat=(len(numbers) - 1)):
             result = numbers[0]
-            for i, o in enumerate(operators):
+            for i, o in enumerate(ops):
                 if o == "+":
                     result += numbers[i+1]
                 elif o == "*":
                     result *= numbers[i+1]
+                elif o == "||":
+                    # result *= 10**ceil(log10(numbers[i+1]))
+                    # result += numbers[i+1]
+                    result = int(f"{result}{numbers[i+1]}")
                 else:
                     raise ValueError(f"Unknown operator: {o}")
             if result == value:
-                valid.append(value)
+                valid.append(e)
                 break
-    return sum(valid)
+    return valid
+
+
+def part1(equations):
+    return sum(e[0] for e in check_equations(equations, OPERATORS[:2]))
 
 
 def part2(equations):
-    return None
+    v1 = check_equations(equations, OPERATORS[:2])
+    v2 = check_equations([e for e in equations if e not in v1], OPERATORS)
+    return sum(e[0] for e in v1 + v2)
+
 
 if __name__ == '__main__':
     equations = []
