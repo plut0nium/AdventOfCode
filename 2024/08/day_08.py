@@ -23,18 +23,41 @@ def print_antinodes(antinodes, grid_size):
         print()
 
 
+def find_antinodes(dipole, grid_size, repeat=False):
+    antinodes = set()
+    a, b = dipole
+    dx = a[0] - b[0]
+    dy = a[1] - b[1]
+    i, j = 0, 0
+    if not repeat:
+        # antennas are not AN
+        i, j = 1, 1
+    while True:
+        an1 = ((a[0] + i * dx), (a[1] + i * dy))
+        if not in_grid(*an1, grid_size):
+            break
+        antinodes.add(an1)
+        if not repeat:
+            # only run once
+            break
+        i += 1
+    while True:
+        an2 = ((b[0] - j * dx), (b[1] - j * dy))
+        if not in_grid(*an2, grid_size):
+            break
+        antinodes.add(an2)
+        if not repeat:
+            # only run once
+            break
+        j += 1
+    return antinodes
+
+
 def part1(antennas, grid_size):
     antinodes = set()
     for freq in antennas.keys():
         for dipole in combinations(antennas[freq], 2):
-            a, b = dipole
-            dx = a[0] - b[0]
-            dy = a[1] - b[1]
-            an1 = a[0] + dx, a[1] + dy
-            an2 = b[0] - dx, b[1] - dy
-            for an in (an1, an2):
-                if in_grid(*an, grid_size):
-                    antinodes.add(an)
+            antinodes.update(find_antinodes(dipole, grid_size))
     return len(antinodes)
 
 
@@ -42,22 +65,7 @@ def part2(antennas):
     antinodes = set()
     for freq in antennas.keys():
         for dipole in combinations(antennas[freq], 2):
-            a, b = dipole
-            dx = a[0] - b[0]
-            dy = a[1] - b[1]
-            i, j = 0, 0
-            while True:
-                an1 = ((a[0] + i * dx), (a[1] + i * dy))
-                if not in_grid(*an1, grid_size):
-                    break
-                antinodes.add(an1)
-                i += 1
-            while True:
-                an2 = ((b[0] - j * dx), (b[1] - j * dy))
-                if not in_grid(*an2, grid_size):
-                    break
-                antinodes.add(an2)
-                j += 1
+            antinodes.update(find_antinodes(dipole, grid_size, repeat=True))
     return len(antinodes)
 
 
