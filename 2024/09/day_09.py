@@ -10,11 +10,19 @@ FREE_SPACE = "."
 
 
 def checksum(disk_map):
+    # checksum of an unpacked disk
     return sum(i * b for i, b in enumerate(disk_map) if b != FREE_SPACE)
 
 
+def unpack(disk_map):
+    unpacked = []
+    for b in disk_map:
+        unpacked.extend([b[1]] * b[0])
+    return unpacked
+
+
 def part1(disk_map):
-    disk_map = disk_map[:] # create a copy
+    disk_map = unpack(disk_map)
     for i, b in enumerate(disk_map[::-1]):
         if b == FREE_SPACE:
             continue
@@ -35,12 +43,6 @@ def part2(disk_map):
                and b[0] >= min_size:
                 return i
         return None
-
-    def unpack(disk_map):
-        unpacked = []
-        for b in disk_map:
-            unpacked.extend([b[1]] * b[0])
-        return unpacked
 
     for b in [b for b in disk_map[::-1] if b[1] != FREE_SPACE]:
         file_index = disk_map.index(b)
@@ -63,18 +65,18 @@ def part2(disk_map):
 
 if __name__ == '__main__':
     disk_map = []
-    disk_map2 = []
     with open(input_file, 'r') as f:
         map_str = f.readline().strip()
         file_id = 0
         for i, c in enumerate(map_str):
+            if not int(c):
+                # empty file/free space
+                continue
             if i % 2:
                 content = FREE_SPACE
             else:
                 content = file_id
                 file_id += 1
-            for j in range(int(c)):
-                disk_map.append(content)
-            disk_map2.append((int(c), content))
+            disk_map.append((int(c), content))
     print(part1(disk_map))
-    print(part2(disk_map2))
+    print(part2(disk_map))
