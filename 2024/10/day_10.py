@@ -6,13 +6,15 @@ input_file = "input"
 # input_file = "test02.txt"
 
 DIRS = [(0, -1), (1, 0), (0, 1), (-1, 0)] # N > E > S > W
+TRAILHEAD = 0
 
 
-def find_trailheads(topographic_map):
+def find_trailheads(topographic_map, height=TRAILHEAD):
+    # find the trailheads (points at given height - default to 0)
     trailheads = set()
     for y, r in enumerate(topographic_map):
         for x, h in enumerate(r):
-            if h == 0:
+            if h == height:
                 trailheads.add((x,y))
     return trailheads
 
