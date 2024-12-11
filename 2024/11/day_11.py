@@ -5,6 +5,8 @@ input_file = "input"
 # input_file = "test01.txt"
 # input_file = "test02.txt"
 
+from collections import defaultdict
+
 
 def blink(stones):
     stones2 = []
@@ -20,17 +22,36 @@ def blink(stones):
     return stones2
 
 
-def part1(stones):
+def blink2(stones):
+    # count stones
+    stones2 = defaultdict(int)
+    for s in stones.keys():
+        if s == 0:
+            stones2[1] += stones[s]
+        elif not (len(s2 := str(s)) % 2):
+            # even number of digits
+            a, b = map(int, (s2[:len(s2)//2], s2[len(s2)//2:]))
+            stones2[a] += stones[s]
+            stones2[b] += stones[s]
+        else:
+            stones2[s * 2024] += stones[s]    
+    return stones2
+
+
+def part1(stones, repeat=25):
     stones = stones[:] # make a copy
-    for i in range(25):
+    for i in range(repeat):
         stones = blink(stones)
     return len(stones)
 
 
-def part2(stones):
-
-    return len(stones)
-
+def part2(stones, repeat=75):
+    stones_counter = defaultdict(int)
+    for s in set(stones):
+        stones_counter[s] = stones.count(s)
+    for i in range(repeat):
+        stones_counter = blink2(stones_counter)
+    return sum(stones_counter.values())
 
 
 if __name__ == '__main__':
