@@ -5,7 +5,7 @@ input_file = "input"
 # input_file = "test01.txt"
 # input_file = "test02.txt"
 
-from collections import defaultdict
+from collections import defaultdict, Counter
 
 
 def blink(stones):
@@ -24,7 +24,7 @@ def blink(stones):
 
 def blink2(stones):
     # count stones
-    stones2 = defaultdict(int)
+    stones2 = Counter()
     for s in stones.keys():
         if s == 0:
             stones2[1] += stones[s]
@@ -46,12 +46,10 @@ def part1(stones, repeat=25):
 
 
 def part2(stones, repeat=75):
-    stones_counter = defaultdict(int)
-    for s in set(stones):
-        stones_counter[s] = stones.count(s)
+    stones_counter = Counter(stones)
     for i in range(repeat):
         stones_counter = blink2(stones_counter)
-    return sum(stones_counter.values())
+    return stones_counter.total()
 
 
 if __name__ == '__main__':
