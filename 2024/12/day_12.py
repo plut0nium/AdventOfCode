@@ -12,7 +12,7 @@ from collections import defaultdict, Counter
 DIRS = [(0, -1), (1, 0), (0, 1), (-1, 0)] # N > E > S > W
 
 
-def part1(garden):
+def find_regions(garden):
     plants = defaultdict(set)
     for y, row in enumerate(garden):
         for x, p in enumerate(row):
@@ -26,6 +26,7 @@ def part1(garden):
             perim = 0
             while to_explore:
                 p = to_explore.pop()
+                plots.discard(p)
                 region.add(p)
                 adjacent = []
                 for d in DIRS:
@@ -38,18 +39,38 @@ def part1(garden):
                     if (x_next, y_next) in plots:
                         # not yet explored + same plant -> to explore
                         to_explore.add((x_next, y_next))
-                        plots.remove((x_next, y_next))
                     elif (x_next, y_next) in region:
                         # same plant + already explored -> adjacent
                         adjacent.append((x_next, y_next))
                 perim += 4 - (2 * len(adjacent))
             regions.append((plant, region, perim))
+    return regions
+
+
+def part1(regions):
     return sum(len(r[1]) * r[2] for r in regions)
 
 
-def part2(stones):
-
-    return None
+def part2(regions):
+    price = 0
+    for r in regions:
+        plots = r[1]
+        corners_count = 0
+        for p in plots:
+            # for each plot in given region
+            for i in range(len(DIRS)):
+                j = (i + 1) % len(DIRS)
+                x1, y1 = p[0] + DIRS[i][0], p[1] + DIRS[i][1]
+                x2, y2 = p[0] + DIRS[j][0], p[1] + DIRS[j][1]
+                x3, y3 = p[0] + DIRS[i][0] + DIRS[j][0], p[1] + DIRS[i][1] + DIRS[j][1]
+                if (x1, y1) not in plots and (x2, y2) not in plots:
+                    # two adjacent are not in region -> external corner
+                    corners_count += 1
+                elif (x1, y1) in plots and (x2, y2) in plots and (x3, y3) not in plots:
+                    # two adjacent are in region, but not diagonal -> internal corner
+                    corners_count += 1
+        price += len(plots) * corners_count
+    return price
 
 
 if __name__ == '__main__':
@@ -57,6 +78,6 @@ if __name__ == '__main__':
     with open(input_file, 'r') as f:
         for r in f.readlines():
             garden.append(r.strip())
-    test = part1(garden)
-    print(part1(garden))
-    print(part2(garden))
+    regions = find_regions(garden)
+    print(part1(regions))
+    print(part2(regions))
