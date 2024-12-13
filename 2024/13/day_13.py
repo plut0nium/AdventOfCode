@@ -11,9 +11,7 @@ from collections import defaultdict, Counter
 import re
 import numpy as np
 
-machine_regex = re.compile(r'Button A: X\+(\d+), Y\+(\d+)\n'
-                          +r'Button B: X\+(\d+), Y\+(\d+)\n'
-                          +r'Prize: X=(\d+), Y=(\d+)')
+digit_re = re.compile(r'\d+')
 TARGET_OFFSET = 10000000000000
 
 
@@ -48,7 +46,7 @@ if __name__ == '__main__':
     machines = []
     with open(input_file, 'r') as f:
         for m in f.read().split("\n\n"):
-            ax, ay, bx, by, tx, ty = map(int, machine_regex.match(m).groups())
+            ax, ay, bx, by, tx, ty = map(int, digit_re.findall(m))
             machines.append(((ax, ay), (bx, by), (tx, ty)))
     print(part1(machines))
     print(part2(machines))
