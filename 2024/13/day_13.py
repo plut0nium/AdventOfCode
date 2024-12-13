@@ -16,27 +16,31 @@ machine_regex = re.compile(r'Button A: X\+(\d+), Y\+(\d+)\n'
                           +r'Prize: X=(\d+), Y=(\d+)')
 TARGET_OFFSET = 10000000000000
 
+
+def solve_machine(A, B, prize, offset=0):
+    a = np.array([A, B]).transpose()
+    b = np.array(prize) + offset
+    solution = np.around(np.linalg.solve(a, b), 3)
+    if all(x.is_integer() for x in solution):
+        return tuple(map(int, solution))
+    return None
+
+
 def part1(machines):
     token_count = 0
     for m in machines:
-        A, B, target = m
-        a = np.array([[A[0], B[0]], [A[1], B[1]]]) # could transpose
-        b = np.array(target)
-        sol = np.around(np.linalg.solve(a, b), 3)
-        if all(x.is_integer() for x in sol):
-            token_count += int(3 * sol[0] + 1 * sol[1])
+        solution = solve_machine(*m)
+        if solution:
+            token_count += 3 * solution[0] + 1 * solution[1]
     return token_count
 
 
 def part2(machines):
     token_count = 0
     for m in machines:
-        A, B, target = m
-        a = np.array([[A[0], B[0]], [A[1], B[1]]]) # could transpose
-        b = np.array(target) + TARGET_OFFSET
-        sol = np.around(np.linalg.solve(a, b), 3)
-        if all(x.is_integer() for x in sol):
-            token_count += int(3 * sol[0] + 1 * sol[1])
+        solution = solve_machine(*m, TARGET_OFFSET)
+        if solution:
+            token_count += 3 * solution[0] + 1 * solution[1]
     return token_count
 
 
