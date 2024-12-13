@@ -7,7 +7,7 @@ input_file = "input"
 # input_file = "test03.txt"
 
 
-from collections import defaultdict, Counter
+from itertools import batched
 import re
 import numpy as np
 
@@ -46,7 +46,6 @@ if __name__ == '__main__':
     machines = []
     with open(input_file, 'r') as f:
         for m in f.read().split("\n\n"):
-            ax, ay, bx, by, tx, ty = map(int, digit_re.findall(m))
-            machines.append(((ax, ay), (bx, by), (tx, ty)))
+            machines.append(tuple(batched(map(int, digit_re.findall(m)), 2)))
     print(part1(machines))
     print(part2(machines))
