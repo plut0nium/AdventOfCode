@@ -11,6 +11,7 @@ from itertools import batched
 from collections import Counter
 from functools import reduce
 import re
+import png
 
 
 def print_robots(robots, space_size):
@@ -22,6 +23,26 @@ def print_robots(robots, space_size):
             else:
                 print(".", end="")
         print()
+
+
+def render_robots(robots, space_size, filename):
+    BLACK_PIXEL = (0, 0, 0)
+    WHITE_PIXEL = (255, 255, 255)
+    width, height = space_size
+    robots_pos = set(p[-1] for p in robots.values())
+    img = []
+    for y in range(height):
+        row = ()
+        for x in range(width):
+            if (x,y) in robots_pos:
+                row = row + WHITE_PIXEL
+            else:
+                row = row + BLACK_PIXEL
+            # row = row + (x, max(0, 255 - x - y), y)
+        img.append(row)
+    with open(filename + '.png', 'wb') as f:
+        w = png.Writer(width, height, greyscale=False)
+        w.write(f, img)
 
 
 def safety_factor(robots, space_size):
@@ -55,7 +76,23 @@ def part1(robots, space_size):
 
 
 def part2(robots, space_size):
-
+    for i in range(10_000):
+        for r, p in robots.items():
+            ipos, vel = r
+            pos = p[-1]
+            x_next, y_next = pos[0] + vel[0], pos[1] + vel[1]
+            if x_next < 0:
+                x_next += space_size[0]
+            elif x_next >= space_size[0]:
+                x_next -= space_size[0]
+            if y_next < 0:
+                y_next += space_size[1]
+            elif y_next >= space_size[1]:
+                y_next -= space_size[1]
+            p.append((x_next, y_next))
+        if i > 5000:
+            elapsed = len(p) - 1
+            render_robots(robots, space_size, f'render/{elapsed:06d}')
     return None
 
 
