@@ -1,0 +1,73 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+input_file = "input"
+# input_file = "test01.txt"
+# input_file = "test02.txt"
+# input_file = "test03.txt"
+
+
+from itertools import batched
+from collections import Counter
+from functools import reduce
+import re
+
+
+def print_robots(robots, space_size):
+    robots_counter = Counter(p[-1] for p in robots.values())
+    for y in range(space_size[1]):
+        for x in range(space_size[0]):
+            if (x,y) in robots_counter:
+                print(robots_counter[(x,y)], end="")
+            else:
+                print(".", end="")
+        print()
+
+
+def safety_factor(robots, space_size):
+    robots_per_quadrant = []
+    quadrants = [((0, space_size[0]//2), (0, space_size[1]//2)),
+                 ((space_size[0]//2 + 1, space_size[0]), (0, space_size[1]//2)),
+                 ((0, space_size[0]//2), (space_size[1]//2 + 1, space_size[1])),
+                 ((space_size[0]//2 + 1, space_size[0]), (space_size[1]//2 + 1, space_size[1]))]
+    for x_range,y_range in quadrants:
+        robots_per_quadrant.append(len([p[-1] for p in robots.values() if p[-1][0] in range(*x_range) and p[-1][1] in range(*y_range)]))
+    return reduce(lambda a,b: a*b, robots_per_quadrant)
+
+
+def part1(robots, space_size):
+    for i in range(100):
+        for r, p in robots.items():
+            ipos, vel = r
+            pos = p[-1]
+            x_next, y_next = pos[0] + vel[0], pos[1] + vel[1]
+            if x_next < 0:
+                x_next += space_size[0]
+            elif x_next >= space_size[0]:
+                x_next -= space_size[0]
+            if y_next < 0:
+                y_next += space_size[1]
+            elif y_next >= space_size[1]:
+                y_next -= space_size[1]
+            p.append((x_next, y_next))
+    #print_robots(robots, space_size)
+    return safety_factor(robots, space_size)
+
+
+def part2(robots, space_size):
+
+    return None
+
+
+if __name__ == '__main__':
+    robots = {}
+    with open(input_file, 'r') as f:
+        for r in f.readlines():
+            initial = tuple(batched(map(int, re.findall(r'(-?\d+)', r)), 2))
+            robots[initial] = [initial[0]]
+        if "test" in input_file:
+            space_size = (11, 7)
+        else:
+            space_size = (101, 103)
+    print(part1(robots, space_size))
+    print(part2(robots, space_size))
