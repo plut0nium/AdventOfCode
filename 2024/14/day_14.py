@@ -12,6 +12,7 @@ from collections import Counter
 from functools import reduce
 import re
 import png
+from statistics import variance
 
 
 def print_robots(robots, space_size):
@@ -29,7 +30,8 @@ def render_robots(robots, space_size, filename):
     BLACK_PIXEL = (0, 0, 0)
     WHITE_PIXEL = (255, 255, 255)
     width, height = space_size
-    robots_pos = set(p[-1] for p in robots.values())
+    # robots_pos = set(p[-1] for p in robots.values())
+    robots_pos = robots[:]
     img = []
     for y in range(height):
         row = ()
@@ -76,6 +78,7 @@ def part1(robots, space_size):
 
 
 def part2(robots, space_size):
+    var = []
     for i in range(10_000):
         for r, p in robots.items():
             ipos, vel = r
@@ -91,9 +94,13 @@ def part2(robots, space_size):
                 y_next -= space_size[1]
             p.append((x_next, y_next))
         if i > 5000:
-            elapsed = len(p) - 1
-            render_robots(robots, space_size, f'render/{elapsed:06d}')
-    return None
+            xvar = variance(p[-1][0] for p in robots.values())
+            yvar = variance(p[-1][1] for p in robots.values())
+            var.append((xvar, yvar))
+    s = [sum(v) for v in var]
+    found_tree_index = s.index(min(s)) + 5001 + 100 + 1
+    render_robots([r[found_tree_index] for r in robots.values()], space_size, 'tree')
+    return found_tree_index
 
 
 if __name__ == '__main__':
