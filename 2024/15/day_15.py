@@ -4,12 +4,13 @@
 input_file = "input"
 input_file = "test01.txt"
 # input_file = "test02.txt"
-input_file = "test03.txt"
+# input_file = "test03.txt"
 
 
 from collections import defaultdict
 from itertools import chain
 from copy import copy
+import sys
 
 DIRS = { "^": ( 0,-1),
          ">": ( 1, 0),
@@ -21,6 +22,8 @@ CRATE = "O"
 ROBOT = "@"
 EMPTY = "."
 BIG_CRATE = "[]"
+
+DEBUG=True
 
 
 def gps(x, y):
@@ -84,6 +87,10 @@ def part1(warehouse, moves, initial_position):
 def part2(warehouse, moves, initial_position):
     warehouse = enlarge_warehouse(warehouse)
     robot_pos = initial_position[0] * 2, initial_position[1]
+    if DEBUG:
+        orig_stdout = sys.stdout
+        f = open('output.txt', 'w')
+        sys.stdout = f
     for m in moves:
         print(m)
         x, y = robot_pos
@@ -146,8 +153,12 @@ def part2(warehouse, moves, initial_position):
                 warehouse[dest] = item[0]
                 if item[0] == ROBOT:
                     robot_pos = dest
-            print_warehouse(warehouse)
+        print_warehouse(warehouse)
+        print()
     print_warehouse(warehouse)
+    if DEBUG:
+        sys.stdout = orig_stdout
+        f.close()
     return sum(gps(*coord) for coord, item in warehouse.items() if item == BIG_CRATE[0])
 
 
