@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 input_file = "input"
-# input_file = "test01.txt"
+input_file = "test01.txt"
 # input_file = "test02.txt"
 # input_file = "test03.txt"
 
@@ -23,7 +23,8 @@ ROBOT = "@"
 EMPTY = "."
 BIG_CRATE = "[]"
 
-DEBUG = False
+DEBUG_TO_FILE = True
+DEBUG = True
 
 
 def gps(x, y):
@@ -59,7 +60,7 @@ def part1(warehouse, moves, initial_position):
     warehouse = copy(warehouse)
     for m in moves:
         x, y = robot_pos
-        lov = [(ROBOT, (x,y))]
+        lov = [(ROBOT, (x,y))] # line of view
         while True:
             x_next = x + DIRS[m][0]
             y_next = y + DIRS[m][1]
@@ -67,7 +68,6 @@ def part1(warehouse, moves, initial_position):
             if warehouse[(x_next, y_next)] == WALL:
                 break
             x, y = x_next, y_next
-        # print(lov)
         for i, p in enumerate(lov):
             if p[0] == WALL:
                 break
@@ -87,14 +87,19 @@ def part1(warehouse, moves, initial_position):
 def part2(warehouse, moves, initial_position):
     warehouse = enlarge_warehouse(warehouse)
     robot_pos = initial_position[0] * 2, initial_position[1]
-    if DEBUG:
+    if DEBUG_TO_FILE:
         orig_stdout = sys.stdout
         f = open('output.txt', 'w')
         sys.stdout = f
+    if DEBUG or DEBUG_TO_FILE:
+        print_warehouse(warehouse)
+        print()
     for m in moves:
-#        print(m)
+        if DEBUG or DEBUG_TO_FILE:
+            print(m, end=" ")
         x, y = robot_pos
         lov = [(ROBOT, (x,y))]
+        blocked = False
         if m in ("<", ">"):
             # horizontal move -> proceed as part 1
             while True:
@@ -102,8 +107,15 @@ def part2(warehouse, moves, initial_position):
                 y_next = y + DIRS[m][1]
                 lov.append((warehouse[(x_next, y_next)], (x_next, y_next)))
                 if warehouse[(x_next, y_next)] == WALL:
+                    blocked = True
+                    break
+                elif warehouse[(x_next, y_next)] == EMPTY:
                     break
                 x, y = x_next, y_next
+            if blocked:
+                if DEBUG or DEBUG_TO_FILE:
+                    print("Blocked!\n")
+                continue
             for i, p in enumerate(lov):
                 if p[0] == WALL:
                     break
@@ -117,19 +129,21 @@ def part2(warehouse, moves, initial_position):
         else:
             # vertical move
             fov = [lov]
-            blocked = False
             while True:
                 fov.append([])
                 for item in fov[-2]:
                     if item[0] == EMPTY:
+                        # empty item will not push another one
                         continue
                     x,y = item[1]
                     x_next = x + DIRS[m][0]
                     y_next = y + DIRS[m][1]
                     if warehouse[(x_next, y_next)] == BIG_CRATE[0]:
+                        # push on [
                         fov[-1].append((BIG_CRATE[0], (x_next, y_next)))
                         fov[-1].append((BIG_CRATE[1], (x_next+1, y_next)))
                     elif warehouse[(x_next, y_next)] == BIG_CRATE[1]:
+                        # push on ]
                         fov[-1].append((BIG_CRATE[0], (x_next-1, y_next)))
                         fov[-1].append((BIG_CRATE[1], (x_next, y_next)))
                     else:
@@ -140,10 +154,10 @@ def part2(warehouse, moves, initial_position):
                 if all(item[0] == EMPTY for item in fov[-1]):
                     break
             if blocked:
-#                print("Blocked!")
+                if DEBUG or DEBUG_TO_FILE:
+                    print("Blocked!\n")
                 continue
             items_to_move = list(chain(*fov))
-            # print(items_to_move)
             for item in items_to_move:
                 if item[0] == EMPTY:
                     continue
@@ -155,10 +169,11 @@ def part2(warehouse, moves, initial_position):
                 warehouse[dest] = item[0]
                 if item[0] == ROBOT:
                     robot_pos = dest
-#        print_warehouse(warehouse)
-#        print()
-#    print_warehouse(warehouse)
-    if DEBUG:
+        if DEBUG or DEBUG_TO_FILE:
+            print()
+            print_warehouse(warehouse)
+            print()
+    if DEBUG_TO_FILE:
         sys.stdout = orig_stdout
         f.close()
     return sum(gps(*coord) for coord, item in warehouse.items() if item == BIG_CRATE[0])
