@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 input_file = "input"
-input_file = "test01.txt"
+# input_file = "test01.txt"
 # input_file = "test02.txt"
 # input_file = "test03.txt"
 
@@ -23,7 +23,7 @@ ROBOT = "@"
 EMPTY = "."
 BIG_CRATE = "[]"
 
-DEBUG=True
+DEBUG = False
 
 
 def gps(x, y):
@@ -92,7 +92,7 @@ def part2(warehouse, moves, initial_position):
         f = open('output.txt', 'w')
         sys.stdout = f
     for m in moves:
-        print(m)
+#        print(m)
         x, y = robot_pos
         lov = [(ROBOT, (x,y))]
         if m in ("<", ">"):
@@ -121,6 +121,8 @@ def part2(warehouse, moves, initial_position):
             while True:
                 fov.append([])
                 for item in fov[-2]:
+                    if item[0] == EMPTY:
+                        continue
                     x,y = item[1]
                     x_next = x + DIRS[m][0]
                     y_next = y + DIRS[m][1]
@@ -138,7 +140,7 @@ def part2(warehouse, moves, initial_position):
                 if all(item[0] == EMPTY for item in fov[-1]):
                     break
             if blocked:
-                print("Blocked!")
+#                print("Blocked!")
                 continue
             items_to_move = list(chain(*fov))
             # print(items_to_move)
@@ -153,9 +155,9 @@ def part2(warehouse, moves, initial_position):
                 warehouse[dest] = item[0]
                 if item[0] == ROBOT:
                     robot_pos = dest
-        print_warehouse(warehouse)
-        print()
-    print_warehouse(warehouse)
+#        print_warehouse(warehouse)
+#        print()
+#    print_warehouse(warehouse)
     if DEBUG:
         sys.stdout = orig_stdout
         f.close()
