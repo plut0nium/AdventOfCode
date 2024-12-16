@@ -42,14 +42,14 @@ def path_score(path):
     return score
 
 
-def part1(maze, start, end):
+def part1_2(maze, start, end):
     pos = start
     dir = 1 # East
     candidates = [[(pos, dir, 0)]]
     found_paths = []
     visited = {}
     while len(candidates):
-        current_path = candidates.pop()
+        current_path = candidates.pop(0)
         for next_step in get_next_steps(*current_path[-1][:2]):
             if maze[next_step[0]] == WALL:
                 continue
@@ -61,7 +61,7 @@ def part1(maze, start, end):
             else:
                 score = current_path[-1][2] + 1001
             if next_step in visited \
-               and visited[next_step] <= score:
+               and visited[next_step] < score:
                 # there is another path leading here with a lower score
                 continue
             else:
@@ -72,7 +72,14 @@ def part1(maze, start, end):
             else:
                 candidates.append(this_path)
     # return len(found_paths)
-    return min(path_score(p) for p in found_paths)
+    scores = [path_score(p) for p in found_paths]
+    best_score = min(scores)
+    # part 2
+    best_seats = set()
+    for i, s in enumerate(scores):
+        if s == best_score:
+            best_seats.update(p[0] for p in found_paths[i])
+    return best_score, len(best_seats)
 
 
 def part2(maze, start, end):
@@ -93,5 +100,5 @@ if __name__ == '__main__':
                     start = (x,y)
                 elif p == END:
                     end = (x,y)
-    print(part1(maze, start, end))
-    print(part2(maze, start, end))
+    for p in part1_2(maze, start, end):
+        print(p)
