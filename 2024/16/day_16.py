@@ -6,11 +6,8 @@ input_file = "input"
 # input_file = "test02.txt"
 # input_file = "test03.txt"
 
-
 from collections import defaultdict
 from itertools import chain
-from copy import copy
-import sys
 
 DIRS = [ ( 0,-1), ( 1, 0), ( 0, 1), (-1, 0) ] # N > E > S > W
 
@@ -48,22 +45,30 @@ def path_score(path):
 def part1(maze, start, end):
     pos = start
     dir = 1 # East
-    candidates = [[(pos, dir)]]
+    candidates = [[(pos, dir, 0)]]
     found_paths = []
+    visited = {}
     while len(candidates):
-        # print(candidates)
         current_path = candidates.pop()
-        for next_step in get_next_steps(*current_path[-1]):
+        for next_step in get_next_steps(*current_path[-1][:2]):
             if maze[next_step[0]] == WALL:
                 continue
             if next_step[0] in [p[0] for p in current_path]:
                 # already in path
                 continue
-            this_path = current_path[:]
-            this_path.append(next_step)
+            if next_step[1] == current_path[-1][1]:
+                score = current_path[-1][2] + 1
+            else:
+                score = current_path[-1][2] + 1001
+            if next_step in visited \
+               and visited[next_step] <= score:
+                # there is another path leading here with a lower score
+                continue
+            else:
+                visited[next_step] = score
+            this_path = current_path[:] + [tuple(chain(next_step, [score]))]
             if next_step[0] == end:
                 found_paths.append(this_path)
-                print(len(found_paths))
             else:
                 candidates.append(this_path)
     # return len(found_paths)
