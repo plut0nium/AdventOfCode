@@ -71,14 +71,12 @@ def part1_2(maze, start, end):
                 found_paths.append(this_path)
             else:
                 candidates.append(this_path)
-    # return len(found_paths)
-    scores = [path_score(p) for p in found_paths]
-    best_score = min(scores)
+    best_score = min(p[-1][-1] for p in found_paths)
     # part 2
     best_seats = set()
-    for i, s in enumerate(scores):
-        if s == best_score:
-            best_seats.update(p[0] for p in found_paths[i])
+    for p in found_paths:
+        if p[-1][-1] == best_score:
+            best_seats.update(s[0] for s in p)
     return best_score, len(best_seats)
 
 
