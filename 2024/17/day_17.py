@@ -7,6 +7,10 @@ input_file = "input"
 # input_file = "test03.txt"
 
 import re
+import sys
+
+sys.path.append("..")
+from utils import timing
 
 digit_re = re.compile(r'\d+')
 
@@ -55,10 +59,12 @@ def run(program, registers):
     return output
 
 
+@timing
 def part1(program, registers):
     return ",".join(str(v) for v in run(program, registers))
 
 
+@timing
 def part2(program):
     queue = [(1, 0)]
     while len(queue):
