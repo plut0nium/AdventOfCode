@@ -62,10 +62,22 @@ def part2(program, registers):
     return ",".join(str(v) for v in run(program, registers))
 
 
+def part2_brute(program, registers):
+    register_a = 0
+    while True:
+        registers = [register_a, 0, 0]
+        output = run(program, registers)
+        if len(output) == len(program) \
+            and all(a == b for a,b in zip(output, program)):
+            return register_a
+        register_a += 1
+    return None
+
+
 if __name__ == '__main__':
     with open(input_file, 'r') as f:
         r, p = f.read().split("\n\n")
         registers = [int(d) for d in digit_re.findall(r)]
         program = [int(o) for o in p.split(":")[1].strip().split(",")]
     print(part1(program, registers))
-    print(part2(program, registers))
+    print(part2_brute(program, registers))
