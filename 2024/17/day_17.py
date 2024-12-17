@@ -32,7 +32,7 @@ def run(program, registers):
         operand = program[ip+1]
         # program
         if opcode == 0: # adv
-            registers[0] = int(registers[0] / (2.0 ** combo(operand, registers)))
+            registers[0] = registers[0] // (2 ** combo(operand, registers))
         elif opcode == 1: # bxl
             registers[1] = registers[1] ^ operand
         elif opcode == 2: # bst
@@ -46,9 +46,9 @@ def run(program, registers):
         elif opcode == 5: # out
             output.append(combo(operand, registers) % 8)
         elif opcode == 6: # bdv
-            registers[1] = int(registers[0] / (2.0 ** combo(operand, registers)))
+            registers[1] = registers[0] // (2 ** combo(operand, registers))
         elif opcode == 7: # cdv
-            registers[2] = int(registers[0] / (2.0 ** combo(operand, registers)))
+            registers[2] = registers[0] // (2 ** combo(operand, registers))
         else:
             raise ValueError(f"Unsupported opcode: {opcode}")
         ip += 2
