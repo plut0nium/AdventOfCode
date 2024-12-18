@@ -11,6 +11,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 from utils import timing
 
+from heapq import heappush, heappop
 
 DIRS = [ ( 0,-1), ( 1, 0), ( 0, 1), (-1, 0) ] # N > E > S > W
 
@@ -40,11 +41,17 @@ def print_grid(grid, size, path=None):
     return None
 
 
+def dist(a, b):
+    # return abs(a[0] - b[0]) + abs(a[1] - b[1]) 
+    return (a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2
+
+
 def find_path(grid, start, end):
-    queue = [[start], ]
+    queue = []
+    heappush(queue, (dist(start, end), [start, ]))
     visited = {}
     while len(queue):
-        path = queue.pop(0)
+        _, path = heappop(queue)
         x, y = path[-1]
         for d in DIRS:
             x_next = x + d[0]
@@ -60,9 +67,11 @@ def find_path(grid, start, end):
                 continue
             visited[(x_next, y_next)] = len(path) + 1
             if (x_next, y_next) == end:
+                print_grid(grid, END, path + [(x_next, y_next)])
                 return path + [(x_next, y_next)]
             else:
-                queue.append(path + [(x_next, y_next)])
+                heappush(queue, (dist((x_next, y_next), END),
+                                 path + [(x_next, y_next)]))
     return None
 
 
@@ -74,15 +83,15 @@ def part1(byte_list):
 
 @timing
 def part2(byte_list):
-    grid = {b:BLOCK for b in byte_list[:BYTE_COUNT]}
-    path = find_path(grid, START, END)
-    for b in byte_list[BYTE_COUNT:]:
-        grid[b] = BLOCK
-        if b not in path:
-            continue
-        path = find_path(grid, START, END)
-        if path is None:
-            return ",".join(map(str, b))
+    # grid = {b:BLOCK for b in byte_list[:BYTE_COUNT]}
+    # path = find_path(grid, START, END)
+    # for b in byte_list[BYTE_COUNT:]:
+    #     grid[b] = BLOCK
+    #     if b not in path:
+    #         continue
+    #     path = find_path(grid, START, END)
+    #     if path is None:
+    #         return ",".join(map(str, b))
     return None
 
 
