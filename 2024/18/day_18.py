@@ -16,6 +16,7 @@ DIRS = [ ( 0,-1), ( 1, 0), ( 0, 1), (-1, 0) ] # N > E > S > W
 
 BLOCK = "#"
 EMPTY = "."
+PATH = "o"
 START = (0, 0)
 if "test" in input_file:
     BYTE_COUNT = 12
@@ -32,7 +33,7 @@ def print_grid(grid, size, path=None):
                 print(BLOCK, end="")
             elif path is not None \
                and (x,y) in path:
-                print("o", end="")
+                print(PATH, end="")
             else:
                 print(EMPTY, end="")
         print()
@@ -76,9 +77,9 @@ def part2(byte_list):
     grid = {b:BLOCK for b in byte_list[:BYTE_COUNT]}
     path = find_path(grid, START, END)
     for b in byte_list[BYTE_COUNT:]:
+        grid[b] = BLOCK
         if b not in path:
             continue
-        grid[b] = BLOCK
         path = find_path(grid, START, END)
         if path is None:
             return ",".join(map(str, b))
