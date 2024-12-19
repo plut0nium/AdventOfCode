@@ -11,6 +11,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 from utils import timing
 
+from functools import cache
+
 
 @timing
 def part1(designs, patterns):
@@ -39,8 +41,24 @@ def part1(designs, patterns):
 
 @timing
 def part2(designs, patterns):
-    # todo
-    return None
+    max_pattern_length = max(len(p) for p in patterns)
+
+    @cache
+    def count_possible(s):
+        if len(s) == 1:
+            if s in patterns:
+                return 1
+            return 0
+        # len(s) > 1
+        total = 0
+        if s in patterns:
+            total += 1
+        for i in range(1, min(len(s), max_pattern_length)+1):
+            if s[:i] in patterns:
+                total += count_possible(s[i:])
+        return total
+ 
+    return sum(count_possible(d) for d in designs)
 
 
 if __name__ == '__main__':
