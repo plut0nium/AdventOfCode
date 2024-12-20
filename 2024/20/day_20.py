@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 input_file = "input"
-input_file = "test01.txt"
+# input_file = "test01.txt"
 # input_file = "test02.txt"
 # input_file = "test03.txt"
 
@@ -11,8 +11,6 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 from utils import timing
 
-from functools import cache
-from itertools import chain
 from collections import deque, Counter
 
 DIRS = [ ( 0,-1), ( 1, 0), ( 0, 1), (-1, 0) ] # N > E > S > W
@@ -20,6 +18,11 @@ DIRS = [ ( 0,-1), ( 1, 0), ( 0, 1), (-1, 0) ] # N > E > S > W
 START = "S"
 END = "E"
 WALL = "#"
+
+if "test" in input_file:
+    MIN_SHORTCUT = 2
+else:
+    MIN_SHORTCUT = 100
 
 
 def find_path(grid, start, end, size):
@@ -48,6 +51,10 @@ def find_path(grid, start, end, size):
     return None
 
 
+def dist_manhattan(a, b):
+    return abs(a[0] - b[0]) + abs(a[1] - b[1])
+
+
 def get_neighbours(pos):
     x, y = pos
     return ((x + d[0], y + d[1]) for d in DIRS)
@@ -57,24 +64,13 @@ def get_neighbours(pos):
 def part1(racetrack, start, end, size):
     path = find_path(racetrack, start, end, size)
     cheats = set()
-    for p in path:
-        for d in DIRS:
-            cheat = [(p[0]+i*d[0], p[1]+i*d[1]) for i in range(1,3)]
-            shortcuts = []
-            if cheat[0] in path:
+    for i, p in enumerate(path):
+        for j, q in enumerate(path[i+2:]):
+            if dist_manhattan(p, q) > 2:
                 continue
-            for q in chain(*(get_neighbours(c) for c in cheat if c in racetrack)):
-                if q == p \
-                   or q in racetrack:
-                    continue
-                if q in path and path.index(q) > path.index(p) + 1:
-                    shortcuts.append((q, path.index(q) - path.index(p)))
-            if len(shortcuts):
-                best_shortcut = max(s[1] for s in shortcuts)
-                for s in shortcuts:
-                    if s[1] == best_shortcut:
-                        cheats.add((p,s[0]))
-    return Counter(path.index(q) - path.index(p) - 1 for p, q in cheats).total()
+            if path.index(q) - path.index(p) - dist_manhattan(p, q) >= MIN_SHORTCUT:
+                cheats.add((p,q))
+    return Counter(path.index(q) - path.index(p) - dist_manhattan(p, q) for p, q in cheats).total()
 
 
 @timing
