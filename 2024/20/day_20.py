@@ -20,10 +20,12 @@ END = "E"
 WALL = "#"
 
 if "test" in input_file:
-    MIN_SHORTCUT = 2
+    MIN_SHORTCUT_P1 = 2
+    MIN_SHORTCUT_P2 = 50
 else:
-    MIN_SHORTCUT = 100
-
+    MIN_SHORTCUT_P1 = 100
+    MIN_SHORTCUT_P2 = 100
+    
 
 def find_path(grid, start, end, size):
     queue = deque([[start], ])
@@ -60,23 +62,29 @@ def get_neighbours(pos):
     return ((x + d[0], y + d[1]) for d in DIRS)
 
 
+def find_cheats(path, min_shortcut, max_length):
+    cheats = set()
+    for i, p in enumerate(path):
+        for q in path[i+min_shortcut:]:
+            if dist_manhattan(p, q) > max_length:
+                continue
+            if path.index(q) - path.index(p) - dist_manhattan(p, q) >= min_shortcut:
+                cheats.add((p,q))
+    return cheats
+
+
 @timing
 def part1(racetrack, start, end, size):
     path = find_path(racetrack, start, end, size)
-    cheats = set()
-    for i, p in enumerate(path):
-        for j, q in enumerate(path[i+2:]):
-            if dist_manhattan(p, q) > 2:
-                continue
-            if path.index(q) - path.index(p) - dist_manhattan(p, q) >= MIN_SHORTCUT:
-                cheats.add((p,q))
+    cheats = find_cheats(path, MIN_SHORTCUT_P1, 2)
     return Counter(path.index(q) - path.index(p) - dist_manhattan(p, q) for p, q in cheats).total()
 
 
 @timing
 def part2(racetrack, start, end, size):
-
-    return None
+    path = find_path(racetrack, start, end, size)
+    cheats = find_cheats(path, MIN_SHORTCUT_P2, 20)
+    return Counter(path.index(q) - path.index(p) - dist_manhattan(p, q) for p, q in cheats).total()
 
 
 if __name__ == '__main__':
