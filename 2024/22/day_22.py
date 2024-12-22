@@ -11,6 +11,10 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 from utils import timing
 
+from functools import cache
+from itertools import chain
+from collections import defaultdict
+
 PRUNE = 16777216
 
 def mix(value, secret):
@@ -37,9 +41,28 @@ def part1(secrets):
 
 
 @timing
-def part2(codes):
-    
-    return None
+def part2(secrets):
+    sequences = []
+    max_bananas = 0
+    for s in secrets:
+        p = [s % 10, ]
+        sequences.append(defaultdict(int)) 
+        for i in range(2000):
+            s = evolve(s)
+            p.append(s % 10)
+            if i >= 4:
+                q = tuple(p[i-j] - p[i-j-1] for j in reversed(range(4)))
+                if q in sequences[-1]:
+                    # only keep the price for the first time a sequence is encountered
+                    continue
+                sequences[-1][q] = p[i]
+                # print(p[i], q)
+    for q in set(chain(*(t.keys() for t in sequences))):
+        bananas = 0
+        for s in sequences:
+            bananas += s[q]
+        max_bananas = max(max_bananas, bananas)
+    return max_bananas
 
 
 if __name__ == '__main__':
