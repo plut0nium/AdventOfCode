@@ -14,6 +14,26 @@ from utils import timing
 from collections import Counter, defaultdict
 
 
+def bron_kerbosch(r, p, x, graph):
+    ''' Bron-Kerbosch Algorithm
+    
+    - r is current clique
+    - p is potential nodes that can be added to r
+    - x is the nodes already processed and not included in r
+    '''
+    if not p and not x:
+        yield r
+    while p:
+        v = p.pop()
+        yield from bron_kerbosch(
+            r.union({v}),
+            p.intersection(graph[v]),
+            x.intersection(graph[v]),
+            graph
+        )
+        x.add(v)
+
+
 @timing
 def part1(connections):
     computers = defaultdict(set)
@@ -37,7 +57,12 @@ def part2(connections):
         a, b = x
         computers[a].add(b)
         computers[b].add(a)
-    return None
+    cliques = list(bron_kerbosch(set(), set(computers.keys()), set(), computers))
+    max_clique = []
+    for c in cliques:
+        if len(c) > len(max_clique):
+            max_clique = c
+    return ",".join(sorted(max_clique))
 
 
 if __name__ == '__main__':
