@@ -13,6 +13,7 @@ from utils import timing
 
 import re
 from collections import deque
+from itertools import permutations
 
 gate_re = re.compile(r'([a-z0-9]+) (AND|OR|XOR) ([a-z0-9]+) -> ([a-z0-9]+)')
 
@@ -25,6 +26,38 @@ def OR(a, b):
 def XOR(a, b):
     return a ^ b
 
+def find_gate_by_input(gates, *inputs):
+    found = []
+    for g in gates:
+        if all(i in g[0] for i in inputs):
+            found.append(g)
+    if len(found):
+        return found
+    return None
+
+def find_gate_by_output(gates, output):
+    found = []
+    for g in gates:
+        if g[2] == output:
+            found.append(g)
+    if len(found):
+        return found
+    return None
+
+def find_gate_by_type(gates, gtype):
+    found = []
+    for g in gates:
+        if g[1] == gtype:
+            found.add(g)
+    if len(found):
+        return found
+    return None
+
+def count_gates(gates, gtype=None):
+    if gtype:
+        return len([g for g in gates if g[1] == gtype])
+    return len(gates)
+
 
 @timing
 def part1(gates, inputs):
@@ -36,13 +69,96 @@ def part1(gates, inputs):
             values[g[2]] = g[1](*(values[i] for i in g[0]))
             continue
         gates.appendleft(g)
-    return int("".join(map(str, (values[j] for j in reversed(sorted(values.keys())) if j.startswith("z")))), 2)
+    return int("".join(map(str, (values[j] for j in reversed(sorted(values.keys())) \
+                                           if j.startswith("z")))),
+               base= 2)
 
 
 @timing
 def part2(gates, inputs):
+    if "test" in input_file:
+        # only works on full input
+        return None
+    correspondance = {}
+    gates = deque(gates)
+    swap_candidates = set()
+    
+    internal_signals = set(g[2] for g in gates if not (g[2].startswith(("x", "y", "z"))))
+    for s in internal_signals:
+        if not any(s in g[0] for g in gates):
+            swap_candidates.add(s)
+    
+    for g in gates:
+        if g[2].startswith("z") and g[1] != XOR:
+            # output bits should come from an XOR gate
+            swap_candidates.add(g[2])
+            print(g)
+            # continue
+        for s in g[0]:
+            if s.startswith("z"):
+                swap_candidates.add(s)
+        
+        if g[1] == OR:
+            for s in g[0]:
+                if len(h := find_gate_by_output(gates, s)) != 1:
+                    raise ValueError(f"Should be only 1 gate with output = {s}")
+                if h[0][1] != AND:
+                    # OR gates should take their input from AND gates
+                    swap_candidates.add(h[0][2])
+                    print(h[0])
+            gx = find_gate_by_input(gates, g[2])
+            if gx is None:
+                swap_candidates.add(g[2])
+                # print(g)
+                continue
+            # carry-out must go into 1x AND and 1x XOR
+            assert len(gx) == 2
+            assert count_gates(gx, XOR) == 1 \
+                   and count_gates(gx, AND) == 1
+            # todo
+        
+    # according to puzzle description, input gates are OK
+    # only output wires can be swapped
+    
+    for i in range(len(inputs) // 2): # 0..44
+        x = f"x{i:02}"
+        y = f"y{i:02}"
+        gx = find_gate_by_input(gates, x, y)
+        assert count_gates(gx, XOR) == 1 \
+               and count_gates(gx, AND) == 1
+        for g in gx:
+            if g[1] == XOR:
+                if i == 0:
+                    if g[2] != "z00":
+                        swap_candidates.add(g[2])
+                        swap_candidates.add("z00")
+                    continue
+                if g[2].startswith("z"):
+                    swap_candidates.add(g[2])
+                    print(g)
+                hx = find_gate_by_input(gates, g[2])
+                if hx is None:
+                    swap_candidates.add(g[2])
+                    # print(g)
+                    continue
+                elif len(hx) != 2:
+                    swap_candidates.add(g[2])
+                    # print(hx)
+                    continue
+                assert count_gates(hx, XOR) == 1 \
+                       and count_gates(hx, AND) == 1
+                for h in hx:
+                    if h[1] == XOR and not h[2].startswith("z"):
+                        swap_candidates.add(h[2])
+                        print(h)
+                        continue
+            elif g[1] == AND:
+                pass
+            else:
+                raise ValueError(f"Incorrect gate type: {g[1]}")
 
-    return None
+    return len(swap_candidates)
+    # return ",".join(sorted(swap_candidates))
 
 
 if __name__ == '__main__':
