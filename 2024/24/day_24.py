@@ -13,7 +13,10 @@ from utils import timing
 
 import re
 from collections import deque
-from itertools import permutations
+from itertools import permutations, batched, chain
+from random import randrange
+
+MAX_BITS = int("1" * 45, 2)
 
 gate_re = re.compile(r'([a-z0-9]+) (AND|OR|XOR) ([a-z0-9]+) -> ([a-z0-9]+)')
 
@@ -58,9 +61,20 @@ def count_gates(gates, gtype=None):
         return len([g for g in gates if g[1] == gtype])
     return len(gates)
 
+def swap_gates(gates, swap):
+    gates = list(gates)[:]
+    for i, g in enumerate(gates):
+        if g[2] not in tuple(chain(*swap)):
+            continue
+        for s in swap:
+            a, b = s
+            if g[2] == a:
+                gates[i] = (g[0], g[1], b)
+            elif g[2] == b:
+                gates[i] = (g[0], g[1], a)
+    return set(gates)
 
-@timing
-def part1(gates, inputs):
+def run(gates, inputs):
     values = {k:v for k,v in inputs.items()}
     gates = deque(gates)
     while len(gates):
@@ -73,14 +87,16 @@ def part1(gates, inputs):
                                            if j.startswith("z")))),
                base= 2)
 
+@timing
+def part1(gates, inputs):
+    return run(gates, inputs)
+
 
 @timing
 def part2(gates, inputs):
     if "test" in input_file:
         # only works on full input
         return None
-    correspondance = {}
-    gates = deque(gates)
     swap_candidates = set()
     
     internal_signals = set(g[2] for g in gates if not (g[2].startswith(("x", "y", "z"))))
@@ -168,6 +184,28 @@ def part2(gates, inputs):
                         swap_candidates.add(g[2])
             else:
                 raise ValueError(f"Incorrect gate type: {g[1]}")
+
+    assert len(swap_candidates) == 8
+
+    # # generate 10 tests
+    # tests = []
+    # for j in range(10):
+    #     test_input = {}
+    #     a, b = (randrange(MAX_BITS + 1) for _ in range(2))
+    #     c = a + b
+    #     for k in range(45):
+    #         test_input[f"x{k:02}"] = (a >> k) & 1
+    #         test_input[f"y{k:02}"] = (b >> k) & 1
+    #     tests.append((test_input, c))
+
+    # for p in permutations(swap_candidates):
+    #     # not efficent, still testing 40k+ combinations
+    #     swap = tuple(batched(p, 2))
+    #     swapped = swap_gates(gates, swap)
+    #     print(swapped.difference(gates))
+    #     if any(run(swapped, t[0]) != t[1] for t in tests):
+    #         continue
+    #     print("Test succeeded: ", p)
 
     # return len(swap_candidates)
     return ",".join(sorted(swap_candidates))
