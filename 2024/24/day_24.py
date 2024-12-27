@@ -87,16 +87,18 @@ def part2(gates, inputs):
     for s in internal_signals:
         if not any(s in g[0] for g in gates):
             swap_candidates.add(s)
-    
+
     for g in gates:
-        if g[2].startswith("z") and g[1] != XOR:
-            # output bits should come from an XOR gate
-            swap_candidates.add(g[2])
-            print(g)
-            # continue
+        if g[1] != XOR and g[2].startswith("z") and g[2] not in internal_signals:
+            # output bits should come from an XOR gate, except z45
+            if g[2] != "z45":
+                swap_candidates.add(g[2])
+                # print(g)
+                # continue
         for s in g[0]:
-            if s.startswith("z"):
+            if s.startswith("z") and s not in internal_signals:
                 swap_candidates.add(s)
+                pass
         
         if g[1] == OR:
             for s in g[0]:
@@ -105,7 +107,10 @@ def part2(gates, inputs):
                 if h[0][1] != AND:
                     # OR gates should take their input from AND gates
                     swap_candidates.add(h[0][2])
-                    print(h[0])
+                    # print(h[0])
+            if g[2] == "z45":
+                # last output bit goes nowhere
+                continue
             gx = find_gate_by_input(gates, g[2])
             if gx is None:
                 swap_candidates.add(g[2])
@@ -116,7 +121,7 @@ def part2(gates, inputs):
             assert count_gates(gx, XOR) == 1 \
                    and count_gates(gx, AND) == 1
             # todo
-        
+
     # according to puzzle description, input gates are OK
     # only output wires can be swapped
     
@@ -128,14 +133,15 @@ def part2(gates, inputs):
                and count_gates(gx, AND) == 1
         for g in gx:
             if g[1] == XOR:
+                # 1st level XOR
                 if i == 0:
                     if g[2] != "z00":
                         swap_candidates.add(g[2])
                         swap_candidates.add("z00")
                     continue
-                if g[2].startswith("z"):
+                if g[2].startswith("z")  and g[2] not in internal_signals:
                     swap_candidates.add(g[2])
-                    print(g)
+                    # print(g)
                 hx = find_gate_by_input(gates, g[2])
                 if hx is None:
                     swap_candidates.add(g[2])
@@ -150,15 +156,21 @@ def part2(gates, inputs):
                 for h in hx:
                     if h[1] == XOR and not h[2].startswith("z"):
                         swap_candidates.add(h[2])
-                        print(h)
+                        # print(h)
                         continue
             elif g[1] == AND:
-                pass
+                # 1st level AND
+                hx = find_gate_by_input(gates, g[2])
+                if hx is not None:
+                    if i == 0 and len(hx) == 2:
+                        pass
+                    elif len(hx) != 1:
+                        swap_candidates.add(g[2])
             else:
                 raise ValueError(f"Incorrect gate type: {g[1]}")
 
-    return len(swap_candidates)
-    # return ",".join(sorted(swap_candidates))
+    # return len(swap_candidates)
+    return ",".join(sorted(swap_candidates))
 
 
 if __name__ == '__main__':
