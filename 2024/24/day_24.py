@@ -13,7 +13,7 @@ from utils import timing
 
 import re
 from collections import deque
-from itertools import permutations, batched, chain
+from itertools import combinations, permutations, batched, chain
 from random import randrange
 
 MAX_BITS = int("1" * 45, 2)
@@ -77,15 +77,26 @@ def swap_gates(gates, swap):
 def run(gates, inputs):
     values = {k:v for k,v in inputs.items()}
     gates = deque(gates)
-    while len(gates):
+    m = 0
+    while len(gates) and m <= 10_000:
         g = gates.pop()
         if all(i in values for i in g[0]):
             values[g[2]] = g[1](*(values[i] for i in g[0]))
             continue
         gates.appendleft(g)
+        m += 1
     return int("".join(map(str, (values[j] for j in reversed(sorted(values.keys())) \
                                            if j.startswith("z")))),
                base= 2)
+
+def signal_permutations(signals):
+    # return possible paired signal permutations
+    perms = set()
+    for p in permutations(signals):
+        paired = tuple(sorted(map(tuple, map(sorted, batched(p, 2)))))
+        perms.add(paired)
+    return perms
+
 
 @timing
 def part1(gates, inputs):
@@ -187,25 +198,23 @@ def part2(gates, inputs):
 
     assert len(swap_candidates) == 8
 
-    # # generate 10 tests
-    # tests = []
-    # for j in range(10):
-    #     test_input = {}
-    #     a, b = (randrange(MAX_BITS + 1) for _ in range(2))
-    #     c = a + b
-    #     for k in range(45):
-    #         test_input[f"x{k:02}"] = (a >> k) & 1
-    #         test_input[f"y{k:02}"] = (b >> k) & 1
-    #     tests.append((test_input, c))
+    # generate 10 tests
+    tests = []
+    for j in range(10):
+        test_input = {}
+        a, b = (randrange(MAX_BITS + 1) for _ in range(2))
+        c = a + b
+        for k in range(45):
+            test_input[f"x{k:02}"] = (a >> k) & 1
+            test_input[f"y{k:02}"] = (b >> k) & 1
+        tests.append((test_input, c))
 
-    # for p in permutations(swap_candidates):
-    #     # not efficent, still testing 40k+ combinations
-    #     swap = tuple(batched(p, 2))
-    #     swapped = swap_gates(gates, swap)
-    #     print(swapped.difference(gates))
-    #     if any(run(swapped, t[0]) != t[1] for t in tests):
-    #         continue
-    #     print("Test succeeded: ", p)
+    for p in signal_permutations(swap_candidates):
+        swapped = swap_gates(gates, p)
+        if any(run(swapped, t[0]) != t[1] for t in tests):
+            continue
+        print("Test succeeded: ", p)
+        break
 
     # return len(swap_candidates)
     return ",".join(sorted(swap_candidates))
