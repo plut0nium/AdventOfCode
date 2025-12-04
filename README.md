@@ -15,12 +15,14 @@ _I try as much as possible to complete the puzzles each day of AoC._
 _At some point, I will eventually lose the motivation, or just not have the time, and don't feel like solving the puzzles afterwards._
 _As a result, I did not complete a full AoC event up to now._
 
-* 2018
-* 2019
-* 2020
-* 2021
-* 2022
-* 2023
+ * 2018
+ * 2019
+ * 2020
+ * 2021
+ * 2022
+ * 2023
+ * 2024
+ * 2025 (ongoing, see 2025 branch)
 
 <!-- Markdwon links -->
 [aoc-url]: https://adventofcode.com/
