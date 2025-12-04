@@ -16,10 +16,11 @@ from collections import Counter, defaultdict
 
 def bron_kerbosch(r, p, x, graph):
     ''' Bron-Kerbosch Algorithm
+    see : https://en.wikipedia.org/wiki/Bron%E2%80%93Kerbosch_algorithm
     
     - r is current clique
     - p is potential nodes that can be added to r
-    - x is the nodes already processed and not included in r
+    - x is the nodes already processed
     '''
     if not p and not x:
         yield r
